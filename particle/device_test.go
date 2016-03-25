@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// Generates a device for testing.
 func generateTestDevice(id, name string, productId byte) Device {
 	device := Device{
 		Id:        id,
@@ -23,6 +24,7 @@ func TestListDevices(t *testing.T) {
 	setup()
 	defer teardown()
 
+	// Generate two devices, the first one is a core and the second one an electron.
 	devices := make(Devices, 2)
 	devices[0] = generateTestDevice("1", "core", 0)
 	devices[1] = generateTestDevice("1", "electron", 10)
@@ -31,7 +33,6 @@ func TestListDevices(t *testing.T) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
-		// Return two devices, the first one is a core, the second one an electron
 
 		err := json.NewEncoder(w).Encode(devices)
 
@@ -51,6 +52,35 @@ func TestListDevices(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(devicesResp, devices) {
-		t.Errorf("Response devices %v don't match with originals: %v", devices, devicesResp)
+		t.Errorf("Response devices %v don't match with originals: %v", devicesResp, devices)
+	}
+}
+
+func TestGetDevice(t *testing.T) {
+	setup()
+	defer teardown()
+
+	device := generateTestDevice("1", "core", 0)
+
+	mux.HandleFunc(deviceUrl + "/" + device.Id, func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method = %v, expected %v", r.Method, m)
+		}
+
+		err := json.NewEncoder(w).Encode(device)
+
+		if err != nil {
+			t.Fatalf("Could not encode device: %v", err)
+		}
+	})
+
+	deviceResp, err := client.GetDevice(device.Id)
+
+	if err != nil {
+		t.Fatalf("GetDevice(): %v", err)
+	}
+
+	if !reflect.DeepEqual(deviceResp, device) {
+		t.Errorf("Response device %v doesn't match orignal: %v", deviceResp, device)
 	}
 }
