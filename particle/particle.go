@@ -3,6 +3,7 @@ package particle
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -39,7 +40,8 @@ type Client struct {
 	Token string
 }
 
-// NewClient returns a new particle cloud api client.
+// NewClient returns a new particle cloud api client. If no httpClient was passed,
+// than a new one will be created.
 func NewClient(httpClient *http.Client, token string) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -54,6 +56,11 @@ func NewClient(httpClient *http.Client, token string) *Client {
 		Token:     token}
 
 	return c
+}
+
+func (r *ErrorResponse) Error() string {
+	return fmt.Sprintf("%v %v: %d %v",
+		r.Response.Request.Method, r.Response.Request.URL, r.Response.StatusCode, r.Message)
 }
 
 // NewRequest generates a new API request with given request. The urlString should point
@@ -77,7 +84,7 @@ func (c *Client) NewRequest(method, urlString string, body interface{}) (*http.R
 		}
 	}
 
-	req, err := http.Request{method, url, buffer}
+	req, err := http.NewRequest(method, url.String(), buffer)
 
 	if err != nil {
 		return nil, err
@@ -91,24 +98,8 @@ func (c *Client) NewRequest(method, urlString string, body interface{}) (*http.R
 	return req, nil
 }
 
-func CheckResponse(r *http.Response) error {
-	if c := r.StatusCode; c >= 200 && c <= 299 {
-		return nil
-	}
-
-	errorResponse := &ErrorResponse{Response: r}
-	data, err = ioutil.ReadAll(r.Body)
-	if err == nil && len(data) > 0 {
-		err := json.Unmarshal(data, errorResponse)
-		if err != nil {
-			return err
-		}
-	}
-
-	return errorResponse
-}
-
-func (c *Client) Do(req *http.Request) (*http.Response, error) {
+// Do executes an http.Request and checks for any errors.
+func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 
 	if err != nil {
@@ -121,7 +112,35 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 		}
 	}()
 
-	//response := Response{Response: r}
-	return nil, nil
+	err = CheckResponse(resp)
 
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(v)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, err
+}
+
+// Checks the API response of an http.Response object.
+func CheckResponse(r *http.Response) error {
+	if c := r.StatusCode; c >= 200 && c <= 299 {
+		return nil
+	}
+
+	errorResponse := &ErrorResponse{Response: r}
+	data, err := ioutil.ReadAll(r.Body)
+	if err == nil && len(data) > 0 {
+		err := json.Unmarshal(data, errorResponse)
+		if err != nil {
+			return err
+		}
+	}
+
+	return errorResponse
 }
