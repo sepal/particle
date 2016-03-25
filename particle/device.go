@@ -38,7 +38,7 @@ func (c *Client) ListDevices() (Devices, error) {
 
 // Get a single device by it's device
 func (c *Client) GetDevice(id string) (Device, error) {
-	req, err := c.NewRequest("GET", deviceUrl + "/" + id, nil)
+	req, err := c.NewRequest("GET", deviceUrl+"/"+id, nil)
 
 	if err != nil {
 		return Device{}, err
