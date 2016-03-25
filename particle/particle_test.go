@@ -2,12 +2,12 @@ package particle
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"testing"
-	"io/ioutil"
 )
 
 var (
@@ -33,12 +33,12 @@ func TestNewRequest(t *testing.T) {
 	token := "someRandomToken"
 	c := NewClient(nil, token)
 
-	type foo struct{
+	type foo struct {
 		A string
 	}
 
 	inUrl, outUrl := "/foo", apiBaseUrl+"/foo"
-	inBody, outBody := &foo{"foo"}, `{"A":"foo"}` + "\n"
+	inBody, outBody := &foo{"foo"}, `{"A":"foo"}`+"\n"
 
 	req, _ := c.NewRequest("GET", inUrl, inBody)
 
@@ -51,11 +51,11 @@ func TestNewRequest(t *testing.T) {
 	body, _ := ioutil.ReadAll(req.Body)
 
 	if string(body) != outBody {
-		t.Errorf("NewRequest has body %v, expected %v", string(body), outBody);
+		t.Errorf("NewRequest has body %v, expected %v", string(body), outBody)
 	}
 
 	reqToken := req.Header.Get("Authorization")
-	if reqToken != "Bearer: " + token {
+	if reqToken != "Bearer: "+token {
 		t.Errorf("NewRequest had wrong token %v, should be %v", reqToken, token)
 	}
 }

@@ -2,23 +2,36 @@ package particle
 
 const deviceUrl = "/v1/devices"
 
+// Device information
 type Device struct {
-	Id             string
-	Name           string
-	LastApp        string
-	LastIp_address string
-	LastHeard      string
-	ProductID      byte
-	LastIccid      string
-	Imei           string
+	Id                 string
+	Name               string
+	LastApp            string `json:"last_app"`
+	LastIpAddress      string `json:"last_ip_address"`
+	LastHeard          string `json:"last_heard"`
+	ProductID          byte   `json:"product_id"`
+	Connected          bool
+	Cellular           bool
+	Status             string
+	LastIccid          string `json:"last_iccid"`
+	Imei               string
+	CurrentBuildTarget string `json:"current_build_target"`
 }
 
-func (c *Client) ListDevices() ([]Device, error) {
+// Array of devices
+type Devices []Device
+
+// ListDevices() lists the users claimed devices.
+func (c *Client) ListDevices() (Devices, error) {
 	req, err := c.NewRequest("GET", deviceUrl, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, nil
+	var devices Devices
+
+	_, err = c.Do(req, &devices)
+
+	return devices, err
 }
