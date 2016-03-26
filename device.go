@@ -4,17 +4,17 @@ const deviceUrl = "/v1/devices"
 
 // Device information
 type Device struct {
-	Id                 string
-	Name               string
-	LastApp            string `json:"last_app"`
-	LastIpAddress      string `json:"last_ip_address"`
-	LastHeard          string `json:"last_heard"`
-	ProductID          byte   `json:"product_id"`
-	Connected          bool
-	Cellular           bool
-	Status             string
-	LastIccid          string `json:"last_iccid"`
-	Imei               string
+	Id            string
+	Name          string
+	LastApp       string `json:"last_app"`
+	LastIpAddress string `json:"last_ip_address"`
+	LastHeard     string `json:"last_heard"`
+	ProductID     byte   `json:"product_id"`
+	Connected     bool
+	Cellular      bool
+	Status        string
+	LastIccid     string `json:"last_iccid"`
+	Imei          string
 }
 
 // Array of devices

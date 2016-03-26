@@ -6,8 +6,7 @@ import (
 	"fmt"
 )
 
-//import "github.com/sepal/particle"
-
+// Get the list of all the users devices.
 func main() {
 	token, err := common.GetToken()
 

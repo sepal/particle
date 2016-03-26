@@ -7,6 +7,8 @@ import (
 	"github.com/mitchellh/colorstring"
 )
 
+// GetToken returns the token parsed from either the environment variables or the arguments.
+// The arguments have priority over the environment variable.
 func GetToken() (string, error) {
 	var token string
 	var err error
@@ -26,6 +28,7 @@ func GetToken() (string, error) {
 	return token, err
 }
 
+// Exit with an error.
 func PrintError(err error) {
 	fmt.Println(colorstring.Color("[red]" + err.Error()))
 	os.Exit(1)
