@@ -1,6 +1,9 @@
 package particle
 
-import "bytes"
+import (
+	"bytes"
+	"strconv"
+)
 
 const deviceURL = "/v1/devices"
 
@@ -54,7 +57,7 @@ func (c *Client) GetDevice(id string) (Device, error) {
 }
 
 // variableRaw returns the raw value from a variable as byte buffer for the given device ID and the given variable name.
-func (c *Client) variableRaw(deviceID string, name string) (*bytes.Buffer, error) {
+func (c *Client) variableRaw(deviceID, name string) (*bytes.Buffer, error) {
 	req, err := c.NewRequest("GET", deviceURL+"/"+deviceID+"/"+name, nil)
 
 	if err != nil {
@@ -67,8 +70,30 @@ func (c *Client) variableRaw(deviceID string, name string) (*bytes.Buffer, error
 	return buffer, err
 }
 
-// VariableRaw gets the raw value without any meta data for the given deviceID and the given variable name.
-func (c *Client) VariableString(deviceID string, name string) (string, error) {
+// VariableString returns the string value of the passed devices variable.
+func (c *Client) VariableString(deviceID, name string) (string, error) {
 	buffer, err := c.variableRaw(deviceID, name)
 	return buffer.String(), err
+}
+
+// VariableInt returns the int value of the passed devices variable.
+func (c *Client) VariableInt(deviceID, name string) (int, error) {
+	str, err := c.VariableString(deviceID, name)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.Atoi(str)
+}
+
+// VariableFloat returns the float64 value of the passed devices variable.
+func (c *Client) VariableFloat(deviceID, name string) (float64, error) {
+	str, err := c.VariableString(deviceID, name)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.ParseFloat(str, 64)
 }
