@@ -37,7 +37,7 @@ func TestNewRequest(t *testing.T) {
 		A string
 	}
 
-	inURL, outURL := "/foo", apiBaseURL +"/foo"
+	inURL, outURL := "/foo", apiBaseURL+"/foo"
 	inBody, outBody := &foo{"foo"}, `{"A":"foo"}`+"\n"
 
 	req, _ := c.NewRequest("GET", inURL, inBody)

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/sepal/particle/examples/common"
-	"github.com/sepal/particle"
 	"fmt"
+	"github.com/sepal/particle"
+	"github.com/sepal/particle/examples/common"
 )
 
 // Get the list of all the users devices.
@@ -14,7 +14,7 @@ func main() {
 		common.PrintError(err)
 	}
 
-	c := particle.NewClient(nil ,token)
+	c := particle.NewClient(nil, token)
 
 	devices, err := c.ListDevices()
 

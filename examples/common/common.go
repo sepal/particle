@@ -1,10 +1,10 @@
 package common
 
 import (
-	"os"
-	"fmt"
 	"errors"
+	"fmt"
 	"github.com/mitchellh/colorstring"
+	"os"
 )
 
 // GetToken returns the token parsed from either the environment variables or the arguments.

@@ -11,7 +11,7 @@ import (
 
 const (
 	libraryVersion = "0.0.1"
-	apiBaseURL = "https://api.particle.io"
+	apiBaseURL     = "https://api.particle.io"
 	userAgent      = "particle/" + libraryVersion
 	mediaType      = "application/json"
 )
@@ -28,16 +28,16 @@ type ErrorResponse struct {
 // A Client manages the communication to the particle cloud.
 type Client struct {
 	// Http client used to communicate with particle api.
-	client    *http.Client
+	client *http.Client
 
 	// Base URL for the API requests
-	BaseURL   *url.URL
+	BaseURL *url.URL
 
 	// User agent for the http client.
 	UserAgent string
 
 	// Token for authentication.
-	Token     string
+	Token string
 }
 
 // NewClient returns a new particle cloud api client. If no httpClient was passed,

@@ -62,7 +62,7 @@ func TestGetDevice(t *testing.T) {
 
 	device := generateTestDevice("1", "core", 0)
 
-	mux.HandleFunc(deviceURL +"/"+device.ID, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL+"/"+device.ID, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
