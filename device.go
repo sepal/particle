@@ -1,5 +1,7 @@
 package particle
 
+import "bytes"
+
 const deviceURL = "/v1/devices"
 
 // Device information
@@ -51,6 +53,22 @@ func (c *Client) GetDevice(id string) (Device, error) {
 	return device, err
 }
 
-func (c *Client) VariableRaw(deviceID string, name string, v interface{}) (error) {
-	return nil
+// variableRaw returns the raw value from a variable as byte buffer for the given device ID and the given variable name.
+func (c *Client) variableRaw(deviceID string, name string) (*bytes.Buffer, error) {
+	req, err := c.NewRequest("GET", deviceURL+"/"+deviceID+"/"+name, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	buffer := new(bytes.Buffer)
+	_, err = c.DoRaw(req, buffer)
+
+	return buffer, err
+}
+
+// VariableRaw gets the raw value without any meta data for the given deviceID and the given variable name.
+func (c *Client) VariableString(deviceID string, name string) (string, error) {
+	buffer, err := c.variableRaw(deviceID, name)
+	return buffer.String(), err
 }

@@ -86,7 +86,7 @@ func TestGetDevice(t *testing.T) {
 	}
 }
 
-func TestDeviceVariableRaw(t *testing.T) {
+func TestDeviceVariableString(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -106,8 +106,7 @@ func TestDeviceVariableRaw(t *testing.T) {
 		io.WriteString(w, var_value)
 	});
 
-	response := ""
-	err := client.VariableRaw(device.ID, var_name, &response);
+	response, err := client.VariableString(device.ID, var_name);
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)

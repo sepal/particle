@@ -127,6 +127,24 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
+func (c *Client) DoRaw(req *http.Request, buffer *bytes.Buffer) (*http.Response, error) {
+	resp, err := c.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if rerr := resp.Body.Close(); err == nil {
+			err = rerr
+		}
+	}()
+
+	buffer.ReadFrom(resp.Body)
+
+	return resp, err
+}
+
 // CheckResponse checks the API response of an http.Response object.
 func CheckResponse(r *http.Response) error {
 	if c := r.StatusCode; c >= 200 && c <= 299 {
