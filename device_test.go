@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+	"io"
 )
 
 // generateTestDevice generates a device for testing.
@@ -82,5 +83,37 @@ func TestGetDevice(t *testing.T) {
 
 	if !reflect.DeepEqual(deviceResp, device) {
 		t.Errorf("Response device %v doesn't match orignal: %v", deviceResp, device)
+	}
+}
+
+func TestDeviceVariableRaw(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var_name := "message";
+	var_value := "My name is particle";
+
+	device := generateTestDevice("1", "core", 0)
+
+	device.Variables = make(map[string]string, 1)
+	device.Variables["message"] = "string"
+
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+var_name, func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method = %v, expected %v", r.Method, m)
+		}
+
+		io.WriteString(w, var_value)
+	});
+
+	response := ""
+	err := client.VariableRaw(device.ID, var_name, &response);
+
+	if err != nil {
+		t.Fatalf("GetDevice(): %v", err)
+	}
+
+	if response != var_value {
+		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, var_value)
 	}
 }

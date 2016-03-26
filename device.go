@@ -15,6 +15,7 @@ type Device struct {
 	Status        string
 	LastICCID     string `json:"last_iccid"`
 	IMEI          string
+	Variables map[string]string
 }
 
 // Devices is an array of the Device type.
@@ -48,4 +49,8 @@ func (c *Client) GetDevice(id string) (Device, error) {
 	_, err = c.Do(req, &device)
 
 	return device, err
+}
+
+func (c *Client) VariableRaw(deviceID string, name string, v interface{}) (error) {
+	return nil
 }
