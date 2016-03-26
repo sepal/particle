@@ -11,7 +11,7 @@ import (
 
 const (
 	libraryVersion = "0.0.1"
-	apiBaseUrl     = "https://api.particle.io"
+	apiBaseURL = "https://api.particle.io"
 	userAgent      = "particle/" + libraryVersion
 	mediaType      = "application/json"
 )
@@ -28,16 +28,16 @@ type ErrorResponse struct {
 // A Client manages the communication to the particle cloud.
 type Client struct {
 	// Http client used to communicate with particle api.
-	client *http.Client
+	client    *http.Client
 
 	// Base URL for the API requests
-	BaseUrl *url.URL
+	BaseURL   *url.URL
 
 	// User agent for the http client.
 	UserAgent string
 
 	// Token for authentication.
-	Token string
+	Token     string
 }
 
 // NewClient returns a new particle cloud api client. If no httpClient was passed,
@@ -47,11 +47,11 @@ func NewClient(httpClient *http.Client, token string) *Client {
 		httpClient = http.DefaultClient
 	}
 
-	baseUrl, _ := url.Parse(apiBaseUrl)
+	baseURL, _ := url.Parse(apiBaseURL)
 
 	c := &Client{
 		client:    httpClient,
-		BaseUrl:   baseUrl,
+		BaseURL:   baseURL,
 		UserAgent: userAgent,
 		Token:     token}
 
@@ -73,7 +73,7 @@ func (c *Client) NewRequest(method, urlString string, body interface{}) (*http.R
 		return nil, err
 	}
 
-	url := c.BaseUrl.ResolveReference(path)
+	url := c.BaseURL.ResolveReference(path)
 
 	buffer := new(bytes.Buffer)
 
@@ -127,7 +127,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
-// Checks the API response of an http.Response object.
+// CheckResponse checks the API response of an http.Response object.
 func CheckResponse(r *http.Response) error {
 	if c := r.StatusCode; c >= 200 && c <= 299 {
 		return nil

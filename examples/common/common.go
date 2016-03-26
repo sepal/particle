@@ -28,7 +28,7 @@ func GetToken() (string, error) {
 	return token, err
 }
 
-// Exit with an error.
+// PrintError exits the program with an error.
 func PrintError(err error) {
 	fmt.Println(colorstring.Color("[red]" + err.Error()))
 	os.Exit(1)

@@ -7,14 +7,14 @@ import (
 	"testing"
 )
 
-// Generates a device for testing.
-func generateTestDevice(id, name string, productId byte) Device {
+// generateTestDevice generates a device for testing.
+func generateTestDevice(id, name string, productID byte) Device {
 	device := Device{
-		Id:        id,
+		ID:        id,
 		Name:      name,
-		ProductID: productId,
+		ProductID: productID,
 		Connected: false,
-		Cellular:  productId == 10,
+		Cellular:  productID == 10,
 	}
 
 	return device
@@ -29,7 +29,7 @@ func TestListDevices(t *testing.T) {
 	devices[0] = generateTestDevice("1", "core", 0)
 	devices[1] = generateTestDevice("1", "electron", 10)
 
-	mux.HandleFunc(deviceUrl, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
@@ -62,7 +62,7 @@ func TestGetDevice(t *testing.T) {
 
 	device := generateTestDevice("1", "core", 0)
 
-	mux.HandleFunc(deviceUrl+"/"+device.Id, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL +"/"+device.ID, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
@@ -74,7 +74,7 @@ func TestGetDevice(t *testing.T) {
 		}
 	})
 
-	deviceResp, err := client.GetDevice(device.Id)
+	deviceResp, err := client.GetDevice(device.ID)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)

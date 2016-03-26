@@ -22,7 +22,7 @@ func setup() {
 
 	client = NewClient(nil, "foo")
 	url, _ := url.Parse(server.URL)
-	client.BaseUrl = url
+	client.BaseURL = url
 }
 
 func teardown() {
@@ -37,14 +37,14 @@ func TestNewRequest(t *testing.T) {
 		A string
 	}
 
-	inUrl, outUrl := "/foo", apiBaseUrl+"/foo"
+	inURL, outURL := "/foo", apiBaseURL +"/foo"
 	inBody, outBody := &foo{"foo"}, `{"A":"foo"}`+"\n"
 
-	req, _ := c.NewRequest("GET", inUrl, inBody)
+	req, _ := c.NewRequest("GET", inURL, inBody)
 
 	// Test if the inUrl expanded to the absolute url.
-	if req.URL.String() != outUrl {
-		t.Errorf("NewRequest with %v has URL = %v, expected %v", inUrl, req.URL, outUrl)
+	if req.URL.String() != outURL {
+		t.Errorf("NewRequest with %v has URL = %v, expected %v", inURL, req.URL, outURL)
 	}
 
 	// Test if body was correctly JSON encoded.

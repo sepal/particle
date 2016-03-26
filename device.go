@@ -1,28 +1,28 @@
 package particle
 
-const deviceUrl = "/v1/devices"
+const deviceURL = "/v1/devices"
 
 // Device information
 type Device struct {
-	Id            string
+	ID            string
 	Name          string
 	LastApp       string `json:"last_app"`
-	LastIpAddress string `json:"last_ip_address"`
+	LastIPAddress string `json:"last_ip_address"`
 	LastHeard     string `json:"last_heard"`
 	ProductID     byte   `json:"product_id"`
 	Connected     bool
 	Cellular      bool
 	Status        string
-	LastIccid     string `json:"last_iccid"`
-	Imei          string
+	LastICCID     string `json:"last_iccid"`
+	IMEI          string
 }
 
-// Array of devices
+// Devices is an array of the Device type.
 type Devices []Device
 
-// ListDevices() lists the users claimed devices.
+// ListDevices lists the users claimed devices.
 func (c *Client) ListDevices() (Devices, error) {
-	req, err := c.NewRequest("GET", deviceUrl, nil)
+	req, err := c.NewRequest("GET", deviceURL, nil)
 
 	if err != nil {
 		return nil, err
@@ -35,9 +35,9 @@ func (c *Client) ListDevices() (Devices, error) {
 	return devices, err
 }
 
-// Get a single device by it's device
+// GetDevice gets a single device by it's device
 func (c *Client) GetDevice(id string) (Device, error) {
-	req, err := c.NewRequest("GET", deviceUrl+"/"+id, nil)
+	req, err := c.NewRequest("GET", deviceURL +"/"+id, nil)
 
 	if err != nil {
 		return Device{}, err
