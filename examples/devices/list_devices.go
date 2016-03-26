@@ -4,14 +4,25 @@ import (
 	"fmt"
 	"github.com/sepal/particle"
 	"github.com/sepal/particle/examples/common"
+	"flag"
 )
+
+var token string
 
 // Get the list of all the users devices.
 func main() {
-	token, err := common.GetToken()
+	flag.StringVar(&token, "token", "", "Set the authentication token")
+	flag.StringVar(&token, "t", "", "Set the authentication token (shorthand)")
 
-	if err != nil {
-		common.PrintError(err)
+	flag.Usage = func() {
+		fmt.Println("list_devices -t [token]")
+		flag.PrintDefaults()
+	}
+
+	flag.Parse()
+
+	if token == "" {
+		common.UsageAndExit("Please set a token.", 0, flag.Usage)
 	}
 
 	c := particle.NewClient(nil, token)

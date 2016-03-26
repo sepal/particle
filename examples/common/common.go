@@ -1,35 +1,26 @@
 package common
 
 import (
-	"errors"
 	"fmt"
 	"github.com/mitchellh/colorstring"
 	"os"
 )
 
-// GetToken returns the token parsed from either the environment variables or the arguments.
-// The arguments have priority over the environment variable.
-func GetToken() (string, error) {
-	var token string
-	var err error
-
-	if len(os.Args) == 3 {
-		if os.Args[1] == "-t" {
-			token = os.Args[2]
-		}
-	} else {
-		token = os.Getenv("TOKEN")
-	}
-
-	if token == "" {
-		err = errors.New("You have to provide a token either with then TOKEN env or the -t argument.")
-	}
-
-	return token, err
-}
+type UsageFunc func()
 
 // PrintError exits the program with an error.
 func PrintError(err error) {
 	fmt.Println(colorstring.Color("[red]" + err.Error()))
 	os.Exit(1)
+}
+
+// Exits and prints the app usage.
+func UsageAndExit(message string, exitCode int, usage UsageFunc) {
+	if message != "" {
+		fmt.Fprintf(os.Stderr, message)
+		fmt.Fprintf(os.Stderr, "\n\n")
+	}
+	usage()
+	fmt.Fprintf(os.Stderr, "\n")
+	os.Exit(exitCode)
 }
