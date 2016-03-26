@@ -58,7 +58,7 @@ func (c *Client) GetDevice(id string) (Device, error) {
 
 // variableRaw returns the raw value from a variable as byte buffer for the given device ID and the given variable name.
 func (c *Client) variableRaw(deviceID, name string) (*bytes.Buffer, error) {
-	req, err := c.NewRequest("GET", deviceURL+"/"+deviceID+"/"+name, nil)
+	req, err := c.NewRequest("GET", deviceURL+"/"+deviceID+"/"+name+"?format=raw", nil)
 
 	if err != nil {
 		return nil, err
