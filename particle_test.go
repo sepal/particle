@@ -55,8 +55,8 @@ func TestNewRequest(t *testing.T) {
 	}
 
 	reqToken := req.Header.Get("Authorization")
-	if reqToken != "Bearer: "+token {
-		t.Errorf("NewRequest had wrong token %v, should be %v", reqToken, token)
+	if reqToken != "Bearer "+token {
+		t.Errorf("NewRequest had wrong authorization header '%v', should be '%v'", reqToken, "Bearer "+token)
 	}
 }
 

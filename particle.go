@@ -93,7 +93,7 @@ func (c *Client) NewRequest(method, urlString string, body interface{}) (*http.R
 	req.Header.Add("Content-Type", mediaType)
 	req.Header.Add("Accept", mediaType)
 	req.Header.Add("User-Agent", c.UserAgent)
-	req.Header.Add("Authorization", "Bearer: "+c.Token)
+	req.Header.Add("Authorization", "Bearer "+c.Token)
 
 	return req, nil
 }

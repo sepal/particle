@@ -15,7 +15,6 @@ type Device struct {
 	Status             string
 	LastIccid          string `json:"last_iccid"`
 	Imei               string
-	CurrentBuildTarget string `json:"current_build_target"`
 }
 
 // Array of devices
