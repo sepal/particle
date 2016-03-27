@@ -179,3 +179,61 @@ func TestDeviceVariableFloat(t *testing.T) {
 		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, var_value)
 	}
 }
+
+func TestDeviceFunction(t *testing.T) {
+	setup()
+	defer teardown()
+
+	device := generateTestDevice("1", "photon", 10)
+	device.Functions = make([]string, 1)
+	device.Functions[0] = "brew"
+	funcArg := "coffee"
+
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+device.Functions[0], func(w http.ResponseWriter, r *http.Request) {
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method = %v, expected %v", r.Method, m)
+		}
+
+		err := r.ParseForm()
+
+		if err != nil {
+			t.Fatalf("Request body '%v' could not be parsed.", r.Body)
+		}
+
+		if len(r.Form["arg"]) < 1 || r.Form["arg"][0] == "" {
+			t.Errorf("Missing arg parameter in request.")
+		}
+
+		brew := 0
+
+		if r.Form["arg"][0] == "coffee" {
+			brew = 1
+		}
+
+		resp := FunctionResponse{device.ID, device.Functions[0], "some_app", true, brew}
+
+		fmt.Println(resp)
+
+		err = json.NewEncoder(w).Encode(resp)
+
+		if err != nil {
+			t.Fatalf("Could not encode devices: %v", err)
+		}
+	});
+
+	resp, err := client.CallFunction(device.ID, device.Functions[0], funcArg)
+
+	if err != nil {
+		t.Fatalf("GetDevice(): %v", err)
+	}
+
+	if resp != 1 {
+		brew := 0
+
+		if funcArg == "coffee" {
+			brew = 1
+		}
+
+		t.Errorf("Response was '%v', althought '%v' was expected", resp, brew)
+	}
+}

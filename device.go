@@ -21,10 +21,19 @@ type Device struct {
 	LastICCID     string `json:"last_iccid"`
 	IMEI          string
 	Variables map[string]string
+	Functions []string
 }
 
 // Devices is an array of the Device type.
 type Devices []Device
+
+type FunctionResponse struct {
+	ID string
+	Name string
+	LastApp string `json:"last_app"`
+	Connected bool
+	ReturnValue int `json:"return_value"`
+}
 
 // ListDevices lists the users claimed devices.
 func (c *Client) ListDevices() (Devices, error) {
@@ -96,4 +105,8 @@ func (c *Client) VariableFloat(deviceID, name string) (float64, error) {
 	}
 
 	return strconv.ParseFloat(str, 64)
+}
+
+func (c *Client) CallFunction(deviceID, name, argument string) (int, error) {
+	return 0, nil
 }
