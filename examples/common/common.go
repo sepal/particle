@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// UsageFunc represents a function which prints how the program should be used.
 type UsageFunc func()
 
 // PrintError exits the program with an error.
@@ -14,7 +15,7 @@ func PrintError(err error) {
 	os.Exit(1)
 }
 
-// Exits and prints the app usage.
+// UsageAndExit exits and prints how the program should be used.
 func UsageAndExit(message string, exitCode int, usage UsageFunc) {
 	if message != "" {
 		fmt.Fprintf(os.Stderr, message)

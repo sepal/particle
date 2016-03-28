@@ -28,6 +28,7 @@ type Device struct {
 // Devices is an array of the Device type.
 type Devices []Device
 
+// FunctionResponse represents the response from the API after calling a device function.
 type FunctionResponse struct {
 	ID string
 	Name string

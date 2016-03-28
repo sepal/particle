@@ -91,30 +91,30 @@ func TestDeviceVariableString(t *testing.T) {
 	setup()
 	defer teardown()
 
-	var_name := "message";
-	var_value := "My name is particle";
+	varName := "message";
+	varValue := "My name is particle";
 
 	device := generateTestDevice("1", "core", 0)
 
 	device.Variables = make(map[string]string, 1)
 	device.Variables["message"] = "string"
 
-	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+var_name, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+ varName, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
 
-		io.WriteString(w, var_value)
+		io.WriteString(w, varValue)
 	});
 
-	response, err := client.VariableString(device.ID, var_name);
+	response, err := client.VariableString(device.ID, varName);
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
 	}
 
-	if response != var_value {
-		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, var_value)
+	if response != varValue {
+		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, varValue)
 	}
 }
 
@@ -122,30 +122,30 @@ func TestDeviceVariableInt(t *testing.T) {
 	setup()
 	defer teardown()
 
-	var_name := "anInt";
-	var_value := 357;
+	varName := "anInt";
+	varValue := 357;
 
 	device := generateTestDevice("1", "core", 0)
 
 	device.Variables = make(map[string]string, 1)
 	device.Variables["message"] = "string"
 
-	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+var_name, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+ varName, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
 
-		io.WriteString(w, fmt.Sprintf("%v", var_value))
+		io.WriteString(w, fmt.Sprintf("%v", varValue))
 	});
 
-	response, err := client.VariableInt(device.ID, var_name);
+	response, err := client.VariableInt(device.ID, varName);
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
 	}
 
-	if response != var_value {
-		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, var_value)
+	if response != varValue {
+		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, varValue)
 	}
 }
 
@@ -153,30 +153,30 @@ func TestDeviceVariableFloat(t *testing.T) {
 	setup()
 	defer teardown()
 
-	var_name := "anInt";
-	var_value := 3.14;
+	varName := "anInt";
+	varValue := 3.14;
 
 	device := generateTestDevice("1", "core", 0)
 
 	device.Variables = make(map[string]string, 1)
 	device.Variables["message"] = "string"
 
-	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+var_name, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+ varName, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
 
-		io.WriteString(w, fmt.Sprintf("%v", var_value))
+		io.WriteString(w, fmt.Sprintf("%v", varValue))
 	});
 
-	response, err := client.VariableFloat(device.ID, var_name);
+	response, err := client.VariableFloat(device.ID, varName);
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
 	}
 
-	if response != float64(var_value) {
-		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, var_value)
+	if response != float64(varValue) {
+		t.Errorf("Variable from response '%v' doesn't match the one generated: '%v'", response, varValue)
 	}
 }
 

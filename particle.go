@@ -154,6 +154,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
+// DoRaw executes a http request with and saves the raw response body into passer buffer element without decoding it.
 func (c *Client) DoRaw(req *http.Request, buffer *bytes.Buffer) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 

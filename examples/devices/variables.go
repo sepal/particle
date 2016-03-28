@@ -8,7 +8,7 @@ import (
 	"reflect"
 )
 
-var token, deviceID, variable, var_type string
+var token, deviceID, variable, varType string
 
 // Get the list of all the users devices.
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	flag.StringVar(&deviceID, "d", "", "Set the device id (shorthand)")
 	flag.StringVar(&variable, "variable", "", "Set the variable name to retrieve")
 	flag.StringVar(&variable, "v", "", "Set the variable name to retrieve (shorthand)")
-	flag.StringVar(&var_type, "type", "string", "Set the expected type of the variable value.")
+	flag.StringVar(&varType, "type", "string", "Set the expected type of the variable value.")
 
 	flag.Usage = func() {
 		fmt.Println("variables -t [token] -d [deviceID] -v [variable_name]")
@@ -41,7 +41,7 @@ func main() {
 
 	c := particle.NewClient(nil, token)
 
-	switch var_type {
+	switch varType {
 	case "string":
 		value, err := c.VariableString(deviceID, variable)
 		if err != nil {
@@ -68,7 +68,7 @@ func main() {
 			reflect.TypeOf(value))
 	default:
 		msg := fmt.Sprintf("The passed type '%v' is not supported. Please use 'string', 'int' or 'float'",
-			var_type);
+			varType);
 		common.UsageAndExit(msg, 1, flag.Usage)
 	}
 }
