@@ -2,11 +2,11 @@ package particle
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"reflect"
 	"testing"
-	"io"
-	"fmt"
 )
 
 // generateTestDevice generates a device for testing.
@@ -91,23 +91,23 @@ func TestDeviceVariableString(t *testing.T) {
 	setup()
 	defer teardown()
 
-	varName := "message";
-	varValue := "My name is particle";
+	varName := "message"
+	varValue := "My name is particle"
 
 	device := generateTestDevice("1", "core", 0)
 
 	device.Variables = make(map[string]string, 1)
 	device.Variables["message"] = "string"
 
-	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+ varName, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+varName, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
 
 		io.WriteString(w, varValue)
-	});
+	})
 
-	response, err := client.VariableString(device.ID, varName);
+	response, err := client.VariableString(device.ID, varName)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
@@ -122,23 +122,23 @@ func TestDeviceVariableInt(t *testing.T) {
 	setup()
 	defer teardown()
 
-	varName := "anInt";
-	varValue := 357;
+	varName := "anInt"
+	varValue := 357
 
 	device := generateTestDevice("1", "core", 0)
 
 	device.Variables = make(map[string]string, 1)
 	device.Variables["message"] = "string"
 
-	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+ varName, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+varName, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
 
 		io.WriteString(w, fmt.Sprintf("%v", varValue))
-	});
+	})
 
-	response, err := client.VariableInt(device.ID, varName);
+	response, err := client.VariableInt(device.ID, varName)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
@@ -153,23 +153,23 @@ func TestDeviceVariableFloat(t *testing.T) {
 	setup()
 	defer teardown()
 
-	varName := "anInt";
-	varValue := 3.14;
+	varName := "anInt"
+	varValue := 3.14
 
 	device := generateTestDevice("1", "core", 0)
 
 	device.Variables = make(map[string]string, 1)
 	device.Variables["message"] = "string"
 
-	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+ varName, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(deviceURL+"/"+device.ID+"/"+varName, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, expected %v", r.Method, m)
 		}
 
 		io.WriteString(w, fmt.Sprintf("%v", varValue))
-	});
+	})
 
-	response, err := client.VariableFloat(device.ID, varName);
+	response, err := client.VariableFloat(device.ID, varName)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
@@ -213,7 +213,7 @@ func TestDeviceFunction(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Could not encode devices: %v", err)
 		}
-	});
+	})
 
 	resp, err := client.CallFunction(device.ID, device.Functions[0], funcArg)
 

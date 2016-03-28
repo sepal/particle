@@ -2,8 +2,8 @@ package particle
 
 import (
 	"bytes"
-	"strconv"
 	"net/url"
+	"strconv"
 )
 
 const deviceURL = "/v1/devices"
@@ -21,8 +21,8 @@ type Device struct {
 	Status        string
 	LastICCID     string `json:"last_iccid"`
 	IMEI          string
-	Variables map[string]string
-	Functions []string
+	Variables     map[string]string
+	Functions     []string
 }
 
 // Devices is an array of the Device type.
@@ -30,10 +30,10 @@ type Devices []Device
 
 // FunctionResponse represents the response from the API after calling a device function.
 type FunctionResponse struct {
-	ID string
-	Name string
-	LastApp string `json:"last_app"`
-	Connected bool
+	ID          string
+	Name        string
+	LastApp     string `json:"last_app"`
+	Connected   bool
 	ReturnValue int `json:"return_value"`
 }
 

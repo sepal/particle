@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/sepal/particle"
 	"github.com/sepal/particle/examples/common"
-	"flag"
 	"reflect"
 )
 
@@ -68,7 +68,7 @@ func main() {
 			reflect.TypeOf(value))
 	default:
 		msg := fmt.Sprintf("The passed type '%v' is not supported. Please use 'string', 'int' or 'float'",
-			varType);
+			varType)
 		common.UsageAndExit(msg, 1, flag.Usage)
 	}
 }

@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/sepal/particle/examples/common"
 	"github.com/sepal/particle"
+	"github.com/sepal/particle/examples/common"
 )
 
 var token, deviceID, funcName, arg string
@@ -37,7 +37,6 @@ func main() {
 	if funcName == "" {
 		common.UsageAndExit("Please set a variable name to retrieve.", 0, flag.Usage)
 	}
-
 
 	c := particle.NewClient(nil, token)
 

@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/sepal/particle"
 	"github.com/sepal/particle/examples/common"
-	"flag"
 )
 
 var token string
