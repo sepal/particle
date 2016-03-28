@@ -7,13 +7,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
 	libraryVersion = "0.0.1"
 	apiBaseURL     = "https://api.particle.io"
 	userAgent      = "particle/" + libraryVersion
-	mediaType      = "application/json"
+	mediaTypeJSON = "application/json"
+	mediaTypeForm = "application/x-www-form-urlencoded"
 )
 
 // An ErrorResponse reports the error caused by an API request
@@ -63,10 +65,10 @@ func (r *ErrorResponse) Error() string {
 		r.Response.Request.Method, r.Response.Request.URL, r.Response.StatusCode, r.Message)
 }
 
-// NewRequest generates a new API request with given request. The urlString should point
+// NewJSONRequest generates a new API request with given request. The urlString should point
 // to the API endporint like /v1/devices. An optional body can be passed which is than,
 // JSON encoded and send in the request body.
-func (c *Client) NewRequest(method, urlString string, body interface{}) (*http.Request, error) {
+func (c *Client) NewJSONRequest(method, urlString string, body interface{}) (*http.Request, error) {
 	path, err := url.Parse(urlString)
 
 	if err != nil {
@@ -90,8 +92,33 @@ func (c *Client) NewRequest(method, urlString string, body interface{}) (*http.R
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", mediaType)
-	req.Header.Add("Accept", mediaType)
+	req.Header.Add("Content-Type", mediaTypeJSON)
+	req.Header.Add("Accept", mediaTypeJSON)
+	req.Header.Add("User-Agent", c.UserAgent)
+	req.Header.Add("Authorization", "Bearer "+c.Token)
+
+	return req, nil
+}
+
+// NewFormRequest creates a new Request with form values instead of JSON. The urlString should point
+// to the API endporint like /v1/devices.
+func (c *Client) NewFormRequest(method, urlString string, form url.Values) (*http.Request, error) {
+	path, err := url.Parse(urlString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	url := c.BaseURL.ResolveReference(path)
+
+	req, err := http.NewRequest(method, url.String(), strings.NewReader(form.Encode()))
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", mediaTypeForm)
+	req.Header.Add("Accept", mediaTypeJSON)
 	req.Header.Add("User-Agent", c.UserAgent)
 	req.Header.Add("Authorization", "Bearer "+c.Token)
 

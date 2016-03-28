@@ -3,6 +3,7 @@ package particle
 import (
 	"bytes"
 	"strconv"
+	"net/url"
 )
 
 const deviceURL = "/v1/devices"
@@ -37,7 +38,7 @@ type FunctionResponse struct {
 
 // ListDevices lists the users claimed devices.
 func (c *Client) ListDevices() (Devices, error) {
-	req, err := c.NewRequest("GET", deviceURL, nil)
+	req, err := c.NewJSONRequest("GET", deviceURL, nil)
 
 	if err != nil {
 		return nil, err
@@ -52,7 +53,7 @@ func (c *Client) ListDevices() (Devices, error) {
 
 // GetDevice gets a single device by it's device
 func (c *Client) GetDevice(id string) (Device, error) {
-	req, err := c.NewRequest("GET", deviceURL+"/"+id, nil)
+	req, err := c.NewJSONRequest("GET", deviceURL+"/"+id, nil)
 
 	if err != nil {
 		return Device{}, err
@@ -67,7 +68,7 @@ func (c *Client) GetDevice(id string) (Device, error) {
 
 // variableRaw returns the raw value from a variable as byte buffer for the given device ID and the given variable name.
 func (c *Client) variableRaw(deviceID, name string) (*bytes.Buffer, error) {
-	req, err := c.NewRequest("GET", deviceURL+"/"+deviceID+"/"+name+"?format=raw", nil)
+	req, err := c.NewJSONRequest("GET", deviceURL+"/"+deviceID+"/"+name+"?format=raw", nil)
 
 	if err != nil {
 		return nil, err
@@ -107,6 +108,23 @@ func (c *Client) VariableFloat(deviceID, name string) (float64, error) {
 	return strconv.ParseFloat(str, 64)
 }
 
+// CallFunction calls the passed function name for the given and returns the function value.
 func (c *Client) CallFunction(deviceID, name, argument string) (int, error) {
-	return 0, nil
+	form := url.Values{}
+	form.Add("arg", argument)
+
+	req, err := c.NewFormRequest("POST", deviceURL+"/"+deviceID+"/"+name, form)
+
+	if err != nil {
+		return 0, err
+	}
+
+	resp := FunctionResponse{}
+	_, err = c.Do(req, &resp)
+
+	if err != nil {
+		return 0, nil
+	}
+
+	return resp.ReturnValue, nil
 }

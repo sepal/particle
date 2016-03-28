@@ -200,19 +200,13 @@ func TestDeviceFunction(t *testing.T) {
 			t.Fatalf("Request body '%v' could not be parsed.", r.Body)
 		}
 
-		if len(r.Form["arg"]) < 1 || r.Form["arg"][0] == "" {
-			t.Errorf("Missing arg parameter in request.")
-		}
-
 		brew := 0
 
-		if r.Form["arg"][0] == "coffee" {
+		if r.FormValue("arg") == "coffee" {
 			brew = 1
 		}
 
 		resp := FunctionResponse{device.ID, device.Functions[0], "some_app", true, brew}
-
-		fmt.Println(resp)
 
 		err = json.NewEncoder(w).Encode(resp)
 

@@ -40,7 +40,7 @@ func TestNewRequest(t *testing.T) {
 	inURL, outURL := "/foo", apiBaseURL+"/foo"
 	inBody, outBody := &foo{"foo"}, `{"A":"foo"}`+"\n"
 
-	req, _ := c.NewRequest("GET", inURL, inBody)
+	req, _ := c.NewJSONRequest("GET", inURL, inBody)
 
 	// Test if the inUrl expanded to the absolute url.
 	if req.URL.String() != outURL {
@@ -75,7 +75,7 @@ func TestDo(t *testing.T) {
 		fmt.Fprint(w, `{"A": "a"}`)
 	})
 
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewJSONRequest("GET", "/", nil)
 	body := new(foo)
 
 	_, err := client.Do(req, body)
