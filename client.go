@@ -235,6 +235,7 @@ func (c *Client) Post(endPoint string, form url.Values,  v interface{}) (*http.R
 	}
 
 	c.setHeaders(req)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	// If an interface was passed, than we're expecting JSON as a response. Particle unfortunately ignore the
 	// request for now :-(

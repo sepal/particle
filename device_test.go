@@ -200,10 +200,10 @@ func TestDeviceFunction(t *testing.T) {
 			t.Fatalf("Request body '%v' could not be parsed.", r.Body)
 		}
 
-		brew := 0
-
-		if r.FormValue("arg") == "coffee" {
-			brew = 1
+		brew := 1
+		if r.PostFormValue("arg") != funcArg {
+			t.Errorf("Post form value = %v, expected: %v", r.PostFormValue("arg"), funcArg)
+			brew = 0
 		}
 
 		resp := FunctionResponse{device.ID, device.Functions[0], "some_app", true, brew}

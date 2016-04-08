@@ -105,19 +105,8 @@ func (c *Client) VariableFloat(deviceID, name string) (float64, error) {
 func (c *Client) CallFunction(deviceID, name, argument string) (int, error) {
 	form := url.Values{}
 	form.Add("arg", argument)
-
-	req, err := c.NewFormRequest("POST", deviceURL+"/"+deviceID+"/"+name, form)
-
-	if err != nil {
-		return 0, err
-	}
-
 	resp := FunctionResponse{}
-	_, err = c.Do(req, &resp)
+	_, err := c.Post(deviceURL+"/"+deviceID+"/"+name, form, &resp)
 
-	if err != nil {
-		return 0, nil
-	}
-
-	return resp.ReturnValue, nil
+	return resp.ReturnValue, err
 }

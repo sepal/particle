@@ -61,11 +61,11 @@ func TestClient_Post(t *testing.T) {
 	defer teardown()
 
 	type foo struct {
-		A string
+		Answer string
 	}
 
 	form := url.Values{}
-	form.Add("a", "foo")
+	form.Add("greeting", "hello")
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if m := "POST"; m != r.Method {
@@ -78,11 +78,11 @@ func TestClient_Post(t *testing.T) {
 			t.Fatalf("ParseForm error: %v", err)
 		}
 
-		if a := r.PostFormValue("a"); a == form.Get("a") {
-			t.Errorf("Form value a = %v, expected", a, form.Get("a"))
+		if a := r.PostFormValue("greeting"); a != form.Get("greeting") {
+			t.Errorf("Form value a = '%v', expected '%v'", a, form.Get("greeting"))
 		}
 
-		fmt.Fprint(w, `{"A": "a"}`)
+		fmt.Fprint(w, `{"Answer": "world"}`)
 	})
 
 	body := new(foo)
@@ -93,7 +93,7 @@ func TestClient_Post(t *testing.T) {
 		t.Fatalf("client.Post(): %v", err)
 	}
 
-	expected := &foo{"a"}
+	expected := &foo{"world"}
 	if !reflect.DeepEqual(body, expected) {
 		t.Errorf("Response body = %v, expected %v", body, expected)
 	}
