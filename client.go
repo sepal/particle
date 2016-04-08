@@ -88,7 +88,7 @@ func (c *Client) setHeaders(r *http.Request) {
 	r.Header.Add("Authorization", "Bearer "+c.Token)
 }
 
-// GET requests executes a GET request using the clients token as well as adding some other headers to it. If v is
+// GET executes a GET request using the clients token as well as adding some other headers to it. If v is
 // passed it will expect a JSON response from the server and fill the passed interface v with the results. The
 // http.Response will be returned either way, as long as there were no errors before the request could be executed.
 func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
@@ -101,7 +101,7 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 
 	url := c.BaseURL.ResolveReference(path)
 
-	// Create custom GET request instead of using http.GET so we can headers to it.
+	// Create custom GET request instead of using http.Get so we can headers to it.
 	req, err := http.NewRequest("GET", url.String(), nil)
 
 	if err != nil {
@@ -110,8 +110,8 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 
 	c.setHeaders(req)
 
-	// If an interface was passed, than we're expecting JSON as a response. Particle unfortunately ignore the
-	// request for now :-(
+	// We're expecting JSON as a response if an interface was passed. Particle unfortunately ignore the request for
+	// now :-(
 	if v != nil {
 		req.Header.Add("Accept", mediaTypeJSON)
 	}
@@ -144,79 +144,8 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
-// NewFormRequest creates a new Request with form values instead of JSON. The urlString should point
-// to the API endporint like /v1/devices.
-func (c *Client) NewFormRequest(method, urlString string, form url.Values) (*http.Request, error) {
-	path, err := url.Parse(urlString)
-
-	if err != nil {
-		return nil, err
-	}
-
-	url := c.BaseURL.ResolveReference(path)
-
-	req, err := http.NewRequest(method, url.String(), strings.NewReader(form.Encode()))
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", mediaTypeForm)
-	req.Header.Add("Accept", mediaTypeJSON)
-	req.Header.Add("User-Agent", c.UserAgent)
-	req.Header.Add("Authorization", "Bearer "+c.Token)
-
-	return req, nil
-}
-
-// Do executes an http.Request and checks for any errors.
-func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
-	resp, err := c.client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		if rerr := resp.Body.Close(); err == nil {
-			err = rerr
-		}
-	}()
-
-	err = CheckResponse(resp)
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(v)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, err
-}
-
-// DoRaw executes a http request with and saves the raw response body into passer buffer element without decoding it.
-func (c *Client) DoRaw(req *http.Request, buffer *bytes.Buffer) (*http.Response, error) {
-	resp, err := c.client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		if rerr := resp.Body.Close(); err == nil {
-			err = rerr
-		}
-	}()
-
-	buffer.ReadFrom(resp.Body)
-
-	return resp, err
-}
-
+// Post executes a new POST to the given end point with the given form values. If v is not null the function will try
+// to decode the response as JSON into the give v interface.
 func (c *Client) Post(endPoint string, form url.Values,  v interface{}) (*http.Response, error) {
 	// Check that the passed endPoint is valid and concatenate it with the base url.
 	path, err := url.Parse(endPoint)
@@ -227,7 +156,7 @@ func (c *Client) Post(endPoint string, form url.Values,  v interface{}) (*http.R
 
 	url := c.BaseURL.ResolveReference(path)
 
-	// Create custom GET request instead of using http.GET so we can headers to it.
+	// Create custom POST request instead of using http.Post so we can add headers to it.
 	req, err := http.NewRequest("POST", url.String(), strings.NewReader(form.Encode()))
 
 	if err != nil {
@@ -237,8 +166,8 @@ func (c *Client) Post(endPoint string, form url.Values,  v interface{}) (*http.R
 	c.setHeaders(req)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	// If an interface was passed, than we're expecting JSON as a response. Particle unfortunately ignore the
-	// request for now :-(
+	// We're expecting JSON as a response if an interface was passed. Particle unfortunately ignore the request for
+	// now :-(
 	if v != nil {
 		req.Header.Add("Accept", mediaTypeJSON)
 	}
