@@ -47,7 +47,50 @@ func TestClient_Get(t *testing.T) {
 	body := new(foo)
 	_, err := client.Get("/", &body)
 	if err != nil {
-		t.Fatalf("Do(): %v", err)
+		t.Fatalf("client.Get(): %v", err)
+	}
+
+	expected := &foo{"a"}
+	if !reflect.DeepEqual(body, expected) {
+		t.Errorf("Response body = %v, expected %v", body, expected)
+	}
+}
+
+func TestClient_Post(t *testing.T) {
+	setup()
+	defer teardown()
+
+	type foo struct {
+		A string
+	}
+
+	form := url.Values{}
+	form.Add("a", "foo")
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request methood = %v, expected %v,", r.Method, m)
+		}
+
+		err := r.ParseForm()
+
+		if err != nil {
+			t.Fatalf("ParseForm error: %v", err)
+		}
+
+		if a := r.PostFormValue("a"); a == form.Get("a") {
+			t.Errorf("Form value a = %v, expected", a, form.Get("a"))
+		}
+
+		fmt.Fprint(w, `{"A": "a"}`)
+	})
+
+	body := new(foo)
+
+	_, err := client.Post("/", form, &body)
+
+	if err != nil {
+		t.Fatalf("client.Post(): %v", err)
 	}
 
 	expected := &foo{"a"}

@@ -216,3 +216,55 @@ func (c *Client) DoRaw(req *http.Request, buffer *bytes.Buffer) (*http.Response,
 
 	return resp, err
 }
+
+func (c *Client) Post(endPoint string, form url.Values,  v interface{}) (*http.Response, error) {
+	// Check that the passed endPoint is valid and concatenate it with the base url.
+	path, err := url.Parse(endPoint)
+
+	if err != nil {
+		return nil, err
+	}
+
+	url := c.BaseURL.ResolveReference(path)
+
+	// Create custom GET request instead of using http.GET so we can headers to it.
+	req, err := http.NewRequest("POST", url.String(), strings.NewReader(form.Encode()))
+
+	if err != nil {
+		return nil, err
+	}
+
+	c.setHeaders(req)
+
+	// If an interface was passed, than we're expecting JSON as a response. Particle unfortunately ignore the
+	// request for now :-(
+	if v != nil {
+		req.Header.Add("Accept", mediaTypeJSON)
+	}
+
+	resp, err := c.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Encode the the JSON response if an interface was passed.
+	if v != nil {
+		// Be sure to close the body and retrieve any errors.
+		defer func() {
+			if rerr := resp.Body.Close(); err == nil {
+				err = rerr
+			}
+		}()
+
+		err = CheckResponse(resp)
+
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(v)
+	}
+
+	return resp, err
+}
