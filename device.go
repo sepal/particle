@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/url"
 	"strconv"
+	"io/ioutil"
 )
 
 const deviceURL = "/v1/devices"
@@ -39,46 +40,37 @@ type FunctionResponse struct {
 
 // ListDevices lists the users claimed devices.
 func (c *Client) ListDevices() (Devices, error) {
-	req, err := c.NewJSONRequest("GET", deviceURL, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
 	var devices Devices
-
-	_, err = c.Do(req, &devices)
+	_, err := c.Get(deviceURL, &devices)
 
 	return devices, err
 }
 
 // GetDevice gets a single device by it's device
 func (c *Client) GetDevice(id string) (Device, error) {
-	req, err := c.NewJSONRequest("GET", deviceURL+"/"+id, nil)
-
-	if err != nil {
-		return Device{}, err
-	}
-
 	var device Device
-
-	_, err = c.Do(req, &device)
+	_, err := c.Get(deviceURL+"/"+id, &device)
 
 	return device, err
 }
 
 // variableRaw returns the raw value from a variable as byte buffer for the given device ID and the given variable name.
 func (c *Client) variableRaw(deviceID, name string) (*bytes.Buffer, error) {
-	req, err := c.NewJSONRequest("GET", deviceURL+"/"+deviceID+"/"+name+"?format=raw", nil)
+	resp, err := c.Get(deviceURL+"/"+deviceID+"/"+name+"?format=raw", nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	buffer := new(bytes.Buffer)
-	_, err = c.DoRaw(req, buffer)
+	// Be sure to close the body and retrieve any errors.
+	defer func() {
+		if rerr := resp.Body.Close(); err == nil {
+			err = rerr
+		}
+	}()
+	buffer, err := ioutil.ReadAll(resp.Body)
 
-	return buffer, err
+	return bytes.NewBuffer(buffer), err
 }
 
 // VariableString returns the string value of the passed devices variable.

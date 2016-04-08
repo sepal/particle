@@ -29,6 +29,33 @@ func teardown() {
 	server.Close()
 }
 
+func TestClient_Get(t *testing.T) {
+	setup()
+	defer teardown()
+
+	type foo struct {
+		A string
+	}
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method = %v, expected %v", r.Method, m)
+		}
+		fmt.Fprint(w, `{"A": "a"}`)
+	})
+
+	body := new(foo)
+	_, err := client.Get("/", &body)
+	if err != nil {
+		t.Fatalf("Do(): %v", err)
+	}
+
+	expected := &foo{"a"}
+	if !reflect.DeepEqual(body, expected) {
+		t.Errorf("Response body = %v, expected %v", body, expected)
+	}
+}
+
 func TestNewRequest(t *testing.T) {
 	token := "someRandomToken"
 	c := NewClient(nil, token)

@@ -4,28 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 )
-
-const (
-	libraryVersion = "0.0.1"
-	apiBaseURL     = "https://api.particle.io"
-	userAgent      = "particle/" + libraryVersion
-	mediaTypeJSON  = "application/json"
-	mediaTypeForm  = "application/x-www-form-urlencoded"
-)
-
-// An ErrorResponse reports the error caused by an API request
-type ErrorResponse struct {
-	// HTTP response that caused this error
-	Response *http.Response
-
-	// Error message
-	Message string
-}
 
 // A Client manages the communication to the particle cloud.
 type Client struct {
@@ -100,6 +82,68 @@ func (c *Client) NewJSONRequest(method, urlString string, body interface{}) (*ht
 	return req, nil
 }
 
+// setHeaders sets the authorization and user-agent headers to the given request.
+func (c *Client) setHeaders(r *http.Request) {
+	r.Header.Add("User-Agent", c.UserAgent)
+	r.Header.Add("Authorization", "Bearer "+c.Token)
+}
+
+// GET requests executes a GET request using the clients token as well as adding some other headers to it. If v is
+// passed it will expect a JSON response from the server and fill the passed interface v with the results. The
+// http.Response will be returned either way, as long as there were no errors before the request could be executed.
+func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
+	// Check that the passed endPoint is valid and concatenate it with the base url.
+	path, err := url.Parse(endPoint)
+
+	if err != nil {
+		return nil, err
+	}
+
+	url := c.BaseURL.ResolveReference(path)
+
+	// Create custom GET request instead of using http.GET so we can headers to it.
+	req, err := http.NewRequest("GET", url.String(), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	c.setHeaders(req)
+
+	// If an interface was passed, than we're expecting JSON as a response. Particle unfortunately ignore the
+	// request for now :-(
+	if v != nil {
+		req.Header.Add("Accept", mediaTypeJSON)
+	}
+
+	// Execute the request.
+	resp, err := c.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Encode the the JSON response if an interface was passed.
+	if v != nil {
+		// Be sure to close the body and retrieve any errors.
+		defer func() {
+			if rerr := resp.Body.Close(); err == nil {
+				err = rerr
+			}
+		}()
+
+		err = CheckResponse(resp)
+
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(v)
+	}
+
+	return resp, err
+}
+
 // NewFormRequest creates a new Request with form values instead of JSON. The urlString should point
 // to the API endporint like /v1/devices.
 func (c *Client) NewFormRequest(method, urlString string, form url.Values) (*http.Request, error) {
@@ -171,22 +215,4 @@ func (c *Client) DoRaw(req *http.Request, buffer *bytes.Buffer) (*http.Response,
 	buffer.ReadFrom(resp.Body)
 
 	return resp, err
-}
-
-// CheckResponse checks the API response of an http.Response object.
-func CheckResponse(r *http.Response) error {
-	if c := r.StatusCode; c >= 200 && c <= 299 {
-		return nil
-	}
-
-	errorResponse := &ErrorResponse{Response: r}
-	data, err := ioutil.ReadAll(r.Body)
-	if err == nil && len(data) > 0 {
-		err := json.Unmarshal(data, errorResponse)
-		if err != nil {
-			return err
-		}
-	}
-
-	return errorResponse
 }
