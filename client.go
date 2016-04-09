@@ -127,7 +127,7 @@ func (c *Client) Post(endPoint string, form url.Values, v interface{}) (*http.Re
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", mediaTypeForm)
 
 	resp, err := c.Do(req, v)
 

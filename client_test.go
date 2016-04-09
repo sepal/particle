@@ -42,7 +42,7 @@ func TestClient_NewRequest(t *testing.T) {
 	form.Add("greeting", "hello")
 
 	req, err := c.NewRequest("POST", inURL, strings.NewReader(form.Encode()))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", mediaTypeForm)
 
 	if err != nil {
 		t.Fatalf("c.NewRequest throwed an error: %v", err)
