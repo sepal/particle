@@ -2,6 +2,7 @@ package particle
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -13,6 +14,11 @@ type ErrorResponse struct {
 
 	// Error message
 	Message string
+}
+
+func (r *ErrorResponse) Error() string {
+	return fmt.Sprintf("%v %v: %d %v",
+		r.Response.Request.Method, r.Response.Request.URL, r.Response.StatusCode, r.Message)
 }
 
 // CheckResponse checks the API response of an http.Response object.

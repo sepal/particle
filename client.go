@@ -2,7 +2,7 @@ package particle
 
 import (
 	"encoding/json"
-	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -47,15 +47,9 @@ func NewClient(httpClient *http.Client, token string) *Client {
 	return c
 }
 
-func (r *ErrorResponse) Error() string {
-	return fmt.Sprintf("%v %v: %d %v",
-		r.Response.Request.Method, r.Response.Request.URL, r.Response.StatusCode, r.Message)
-}
-
-// Get executes a GET request using the clients token as well as adding some other headers to it. If v is
-// passed it will expect a JSON response from the server and fill the passed interface v with the results. The
-// http.Response will be returned either way, as long as there were no errors before the request could be executed.
-func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
+// NewRequest creates a new http.Request with the given method to the given endPoint. This function will automatically
+// point the request to the clients baseURL, using the clients user agent and token. If a body is passed, than
+func (c *Client) NewRequest(method, endPoint string, body io.Reader, json bool) (*http.Request, error) {
 	// Check that the passed endPoint is valid and concatenate it with the base url.
 	path, err := url.Parse(endPoint)
 
@@ -66,7 +60,7 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 	url := c.BaseURL.ResolveReference(path)
 
 	// Create custom GET request instead of using http.Get so we can headers to it.
-	req, err := http.NewRequest("GET", url.String(), nil)
+	req, err := http.NewRequest(method, url.String(), body)
 
 	if err != nil {
 		return nil, err
@@ -74,17 +68,17 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 
 	c.setHeaders(req)
 
-	// We're expecting JSON as a response if an interface was passed. Particle unfortunately ignore the request for
-	// now :-(
-	if v != nil {
-		req.Header.Add("Accept", mediaTypeJSON)
-	}
+	return req, nil
+}
 
+// Do executes the given http.Request. If the interfaces v is passed, then the function tries to encode the JSON
+// response into that interface. The http.Response is passed regardless.
+func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	// Execute the request.
 	resp, err := c.client.Do(req)
 
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	// Encode the the JSON response if an interface was passed.
@@ -108,57 +102,34 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
-// Post executes a new POST to the given end point with the given form values. If v is not null the function will try
-// to decode the response as JSON into the give v interface.
+// Get executes a GET request using the clients token as well as adding some other headers to it. If the interfaces v is
+// passed, then the function tries to encode the JSON response into that interface. The http.Response is passed
+// regardless.
+func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
+	req, err := c.NewRequest("GET", endPoint, nil, v != nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.Do(req, v)
+
+	return resp, err
+}
+
+// Post executes a new POST to the given end point with the given form values. If the interfaces v is
+// passed, then the function tries to encode the JSON response into that interface. The http.Response is passed
+// regardless.
 func (c *Client) Post(endPoint string, form url.Values, v interface{}) (*http.Response, error) {
-	// Check that the passed endPoint is valid and concatenate it with the base url.
-	path, err := url.Parse(endPoint)
+	req, err := c.NewRequest("POST", endPoint, strings.NewReader(form.Encode()), v != nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	url := c.BaseURL.ResolveReference(path)
-
-	// Create custom POST request instead of using http.Post so we can add headers to it.
-	req, err := http.NewRequest("POST", url.String(), strings.NewReader(form.Encode()))
-
-	if err != nil {
-		return nil, err
-	}
-
-	c.setHeaders(req)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	// We're expecting JSON as a response if an interface was passed. Particle unfortunately ignore the request for
-	// now :-(
-	if v != nil {
-		req.Header.Add("Accept", mediaTypeJSON)
-	}
-
-	resp, err := c.client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// Encode the the JSON response if an interface was passed.
-	if v != nil {
-		// Be sure to close the body and retrieve any errors.
-		defer func() {
-			if respErr := resp.Body.Close(); err == nil {
-				err = respErr
-			}
-		}()
-
-		err = CheckResponse(resp)
-
-		if err != nil {
-			return nil, err
-		}
-
-		err = json.NewDecoder(resp.Body).Decode(v)
-	}
+	resp, err := c.Do(req, v)
 
 	return resp, err
 }
