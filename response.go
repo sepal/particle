@@ -1,9 +1,9 @@
 package particle
 
 import (
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 )
 
 // An ErrorResponse reports the error caused by an API request
@@ -14,7 +14,6 @@ type ErrorResponse struct {
 	// Error message
 	Message string
 }
-
 
 // CheckResponse checks the API response of an http.Response object.
 func CheckResponse(r *http.Response) error {

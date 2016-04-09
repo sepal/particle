@@ -2,9 +2,9 @@ package particle
 
 import (
 	"bytes"
+	"io/ioutil"
 	"net/url"
 	"strconv"
-	"io/ioutil"
 )
 
 const deviceURL = "/v1/devices"
@@ -64,8 +64,8 @@ func (c *Client) variableRaw(deviceID, name string) (*bytes.Buffer, error) {
 
 	// Be sure to close the body and retrieve any errors.
 	defer func() {
-		if rerr := resp.Body.Close(); err == nil {
-			err = rerr
+		if respErr := resp.Body.Close(); err == nil {
+			err = respErr
 		}
 	}()
 	buffer, err := ioutil.ReadAll(resp.Body)

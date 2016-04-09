@@ -48,7 +48,7 @@ func (r *ErrorResponse) Error() string {
 }
 
 // NewJSONRequest generates a new API request with given request. The urlString should point
-// to the API endporint like /v1/devices. An optional body can be passed which is than,
+// to the API endpoint like /v1/devices. An optional body can be passed which is than,
 // JSON encoded and send in the request body.
 func (c *Client) NewJSONRequest(method, urlString string, body interface{}) (*http.Request, error) {
 	path, err := url.Parse(urlString)
@@ -88,7 +88,7 @@ func (c *Client) setHeaders(r *http.Request) {
 	r.Header.Add("Authorization", "Bearer "+c.Token)
 }
 
-// GET executes a GET request using the clients token as well as adding some other headers to it. If v is
+// Get executes a GET request using the clients token as well as adding some other headers to it. If v is
 // passed it will expect a JSON response from the server and fill the passed interface v with the results. The
 // http.Response will be returned either way, as long as there were no errors before the request could be executed.
 func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
@@ -127,8 +127,8 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 	if v != nil {
 		// Be sure to close the body and retrieve any errors.
 		defer func() {
-			if rerr := resp.Body.Close(); err == nil {
-				err = rerr
+			if respErr := resp.Body.Close(); err == nil {
+				err = respErr
 			}
 		}()
 
@@ -146,7 +146,7 @@ func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
 
 // Post executes a new POST to the given end point with the given form values. If v is not null the function will try
 // to decode the response as JSON into the give v interface.
-func (c *Client) Post(endPoint string, form url.Values,  v interface{}) (*http.Response, error) {
+func (c *Client) Post(endPoint string, form url.Values, v interface{}) (*http.Response, error) {
 	// Check that the passed endPoint is valid and concatenate it with the base url.
 	path, err := url.Parse(endPoint)
 
@@ -182,8 +182,8 @@ func (c *Client) Post(endPoint string, form url.Values,  v interface{}) (*http.R
 	if v != nil {
 		// Be sure to close the body and retrieve any errors.
 		defer func() {
-			if rerr := resp.Body.Close(); err == nil {
-				err = rerr
+			if respErr := resp.Body.Close(); err == nil {
+				err = respErr
 			}
 		}()
 
