@@ -1,7 +1,6 @@
 package particle
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -22,6 +21,12 @@ type Client struct {
 
 	// Token for authentication.
 	Token string
+}
+
+// setHeaders sets the authorization and user-agent headers to the given request.
+func (c *Client) setHeaders(r *http.Request) {
+	r.Header.Add("User-Agent", c.UserAgent)
+	r.Header.Add("Authorization", "Bearer "+c.Token)
 }
 
 // NewClient returns a new particle cloud api client. If no httpClient was passed,
@@ -45,47 +50,6 @@ func NewClient(httpClient *http.Client, token string) *Client {
 func (r *ErrorResponse) Error() string {
 	return fmt.Sprintf("%v %v: %d %v",
 		r.Response.Request.Method, r.Response.Request.URL, r.Response.StatusCode, r.Message)
-}
-
-// NewJSONRequest generates a new API request with given request. The urlString should point
-// to the API endpoint like /v1/devices. An optional body can be passed which is than,
-// JSON encoded and send in the request body.
-func (c *Client) NewJSONRequest(method, urlString string, body interface{}) (*http.Request, error) {
-	path, err := url.Parse(urlString)
-
-	if err != nil {
-		return nil, err
-	}
-
-	url := c.BaseURL.ResolveReference(path)
-
-	buffer := new(bytes.Buffer)
-
-	if body != nil {
-		err := json.NewEncoder(buffer).Encode(body)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	req, err := http.NewRequest(method, url.String(), buffer)
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", mediaTypeJSON)
-	req.Header.Add("Accept", mediaTypeJSON)
-	req.Header.Add("User-Agent", c.UserAgent)
-	req.Header.Add("Authorization", "Bearer "+c.Token)
-
-	return req, nil
-}
-
-// setHeaders sets the authorization and user-agent headers to the given request.
-func (c *Client) setHeaders(r *http.Request) {
-	r.Header.Add("User-Agent", c.UserAgent)
-	r.Header.Add("Authorization", "Bearer "+c.Token)
 }
 
 // Get executes a GET request using the clients token as well as adding some other headers to it. If v is
