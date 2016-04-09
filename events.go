@@ -20,7 +20,7 @@ type EventChannel chan Event
 type Event struct {
 	Name string
 	Data string
-	TTL int
+	TTL string
 	PublishedAt time.Time `json:"published_at"`
 }
 
@@ -79,21 +79,19 @@ func (e *EventListener) Listen() error {
 		switch {
 		// todo: check for :ok
 		case bytes.HasPrefix(line, eventNameLabel):
-			split := bytes.Split(line, eventNameLabel)
-			ev.Name = string(split[1])
+			ev.Name = string(line[len(eventNameLabel):])
 			ev.Name = strings.TrimSpace(ev.Name)
 		case bytes.HasPrefix(line, eventDataLabel):
-			split := bytes.Split(line, eventDataLabel)
-			buf.Write(split[1])
+			buf.Write(line[len(eventDataLabel):])
 		case bytes.Equal(line, []byte("\n")):
 			b := buf.Bytes()
 			err := json.Unmarshal(b, &ev)
 
 			if err == nil {
-				buf.Reset()
 				e.OutputChan <- ev
-				ev = Event{}
 			}
+			buf.Reset()
+			ev = Event{}
 			// todo: Error handling for if json decoding failed.
 		}
 

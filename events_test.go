@@ -44,7 +44,7 @@ func TestEventListener_Listen(t *testing.T) {
 	setup()
 	defer teardown()
 
-	e := Event{"greeting", "Hello, World", 60, time.Now()}
+	e := Event{"greeting", "Hello, World", "60", time.Now()}
 
 	mux.HandleFunc(eventURL , func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; r.Method != m {
