@@ -1,16 +1,16 @@
 package particle
 
 import (
-	"time"
-	"net/http"
 	"bufio"
 	"bytes"
-	"fmt"
-	"strings"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
 )
 
-const eventURL  = "/v1/events"
+const eventURL = "/v1/events"
 
 var eventNameLabel = []byte("event:")
 var eventDataLabel = []byte("data:")
@@ -18,9 +18,9 @@ var eventDataLabel = []byte("data:")
 type EventChannel chan Event
 
 type Event struct {
-	Name string
-	Data string
-	TTL string
+	Name        string
+	Data        string
+	TTL         string
 	PublishedAt time.Time `json:"published_at"`
 }
 
@@ -30,15 +30,20 @@ type EventListener struct {
 	running    bool
 }
 
-func (c *Client) NewEventListener(name string) (*EventListener, error)  {
+func (c *Client) NewEventListener(name, deviceID string) (*EventListener, error) {
 	e := &EventListener{}
-	
+
 	if e.OutputChan == nil {
 		e.OutputChan = make(chan Event)
 	}
-	
+
 	if e.response == nil {
-		endPoint := eventURL
+		var endPoint string
+		if deviceID != "" {
+			endPoint = deviceURL + "/event"
+		} else {
+			endPoint = eventURL
+		}
 
 		if name != "" {
 			endPoint += "/" + name
@@ -52,13 +57,13 @@ func (c *Client) NewEventListener(name string) (*EventListener, error)  {
 
 		err = CheckResponse(resp)
 
-		if  err != nil {
+		if err != nil {
 			return nil, err
 		}
 
 		e.response = resp
 	}
-	
+
 	return e, nil
 }
 
