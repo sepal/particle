@@ -77,3 +77,43 @@ func TestEventListener_Listen(t *testing.T) {
 		eventLister.Close()
 	}
 }
+
+func TestEventListener_ListenDevice(t *testing.T) {
+	setup()
+	defer teardown()
+
+	d := generateTestDevice("1", "photon", 0)
+
+	e := Event{"greeting", "Hello, World", "60", time.Now()}
+
+	mux.HandleFunc(deviceURL+"/"+d.ID+"/events/"+e.Name, func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; r.Method != m {
+			t.Errorf("Wrong request method %v, expected %v", r.Method, m)
+		}
+
+		data, err := json.Marshal(e)
+
+		if err != nil {
+			t.Fatalf("Error while encoding event: %v", err)
+		}
+
+		fmt.Fprintf(w, ":ok\n\n")
+		fmt.Fprintf(w, "event: %v\n", e.Name)
+		fmt.Fprintf(w, "data: %v\n\n", string(data[:]))
+	})
+
+	eventLister, err := client.NewEventListener(e.Name, d.ID)
+
+	if err != nil {
+		t.Fatalf("Error while creating EventLister: %v", err)
+	}
+
+	go eventLister.Listen()
+
+	for event := range eventLister.OutputChan {
+		if !reflect.DeepEqual(event, e) {
+			t.Errorf("Got event %v, expected %v", event, e)
+		}
+		eventLister.Close()
+	}
+}
