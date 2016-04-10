@@ -11,7 +11,7 @@
 - ~~Device Info~~
 - ~~Device Variables~~
 - ~~Device Functions~~
-- Events
+- ~~Events~~
 - Refactor/Improve error handling
 - Special Events
 
