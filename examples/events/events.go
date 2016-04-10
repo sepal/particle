@@ -11,13 +11,15 @@ import (
 	"syscall"
 )
 
-var token, event string
+var token, event, deviceID string
 
 func main() {
 	flag.StringVar(&token, "token", "", "Set the authentication token")
 	flag.StringVar(&token, "t", "", "Set the authentication token (shorthand)")
 	flag.StringVar(&event, "event", "", "Event name to subcribe to")
 	flag.StringVar(&event, "e", "", "Event name to subcribe to (shorthand)")
+	flag.StringVar(&deviceID, "device", "", "Set the device id")
+	flag.StringVar(&deviceID, "d", "", "Set the device id (shorthand)")
 
 	flag.Usage = func() {
 		fmt.Println("events -t token [-e event]")
@@ -36,7 +38,7 @@ func main() {
 
 	c := particle.NewClient(nil, token)
 
-	e, err := c.NewEventListener(event)
+	e, err := c.NewEventListener(event, deviceID)
 
 	if err != nil {
 		common.PrintError(err)

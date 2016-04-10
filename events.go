@@ -45,7 +45,7 @@ func (c *Client) NewEventListener(name, deviceID string) (*EventListener, error)
 	if e.response == nil {
 		var endPoint string
 		if deviceID != "" {
-			endPoint = deviceURL + "/event"
+			endPoint = deviceURL + "/" + deviceID + "/events"
 		} else {
 			endPoint = eventURL
 		}
