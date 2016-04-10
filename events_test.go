@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
 )
@@ -71,7 +70,7 @@ func TestEventListener_Listen(t *testing.T) {
 	go eventLister.Listen()
 
 	for event := range eventLister.OutputChan {
-		if !reflect.DeepEqual(event, e) {
+		if event.Name != e.Name || event.Data != e.Data {
 			t.Errorf("Got event %v, expected %v", event, e)
 		}
 		eventLister.Close()
@@ -111,7 +110,7 @@ func TestEventListener_ListenDevice(t *testing.T) {
 	go eventLister.Listen()
 
 	for event := range eventLister.OutputChan {
-		if !reflect.DeepEqual(event, e) {
+		if event.Name != e.Name || event.Data != e.Data {
 			t.Errorf("Got event %v, expected %v", event, e)
 		}
 		eventLister.Close()
