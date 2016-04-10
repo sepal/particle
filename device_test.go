@@ -17,12 +17,13 @@ func generateTestDevice(id, name string, productID byte) Device {
 		ProductID: productID,
 		Connected: false,
 		Cellular:  productID == 10,
+		client:    client,
 	}
 
 	return device
 }
 
-func TestListDevices(t *testing.T) {
+func TestClient_ListDevices(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -58,7 +59,7 @@ func TestListDevices(t *testing.T) {
 	}
 }
 
-func TestGetDevice(t *testing.T) {
+func TestClient_GetDevice(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -87,7 +88,7 @@ func TestGetDevice(t *testing.T) {
 	}
 }
 
-func TestDeviceVariableString(t *testing.T) {
+func TestDevice_VariableString(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -107,7 +108,7 @@ func TestDeviceVariableString(t *testing.T) {
 		io.WriteString(w, varValue)
 	})
 
-	response, err := client.VariableString(device.ID, varName)
+	response, err := device.VariableString(varName)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
@@ -118,7 +119,7 @@ func TestDeviceVariableString(t *testing.T) {
 	}
 }
 
-func TestDeviceVariableInt(t *testing.T) {
+func TestDevice_VariableInt(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -138,7 +139,7 @@ func TestDeviceVariableInt(t *testing.T) {
 		io.WriteString(w, fmt.Sprintf("%v", varValue))
 	})
 
-	response, err := client.VariableInt(device.ID, varName)
+	response, err := device.VariableInt(varName)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
@@ -149,7 +150,7 @@ func TestDeviceVariableInt(t *testing.T) {
 	}
 }
 
-func TestDeviceVariableFloat(t *testing.T) {
+func TestDevice_VariableFloat(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -169,7 +170,7 @@ func TestDeviceVariableFloat(t *testing.T) {
 		io.WriteString(w, fmt.Sprintf("%v", varValue))
 	})
 
-	response, err := client.VariableFloat(device.ID, varName)
+	response, err := device.VariableFloat(varName)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)
@@ -180,7 +181,7 @@ func TestDeviceVariableFloat(t *testing.T) {
 	}
 }
 
-func TestDeviceFunction(t *testing.T) {
+func TestDevice_CallFunction(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -215,7 +216,7 @@ func TestDeviceFunction(t *testing.T) {
 		}
 	})
 
-	resp, err := client.CallFunction(device.ID, device.Functions[0], funcArg)
+	resp, err := device.CallFunction(device.Functions[0], funcArg)
 
 	if err != nil {
 		t.Fatalf("GetDevice(): %v", err)

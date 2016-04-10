@@ -40,7 +40,13 @@ func main() {
 
 	c := particle.NewClient(nil, token)
 
-	result, err := c.CallFunction(deviceID, funcName, arg)
+	d, err := c.GetDevice(deviceID)
+
+	if err != nil {
+		common.PrintError(err)
+	}
+
+	result, err := d.CallFunction(funcName, arg)
 
 	if err != nil {
 		common.PrintError(err)

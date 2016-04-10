@@ -20,7 +20,7 @@ func TestClient_NewEventListener(t *testing.T) {
 		}
 	})
 
-	e, err := client.NewEventListener(eventName, "")
+	e, err := client.NewEventListener(eventName)
 
 	if err != nil {
 		t.Fatalf("Error while creating EventListener: %v", err)
@@ -61,7 +61,7 @@ func TestEventListener_Listen(t *testing.T) {
 		fmt.Fprintf(w, "data: %v\n\n", string(data[:]))
 	})
 
-	eventLister, err := client.NewEventListener("", "")
+	eventLister, err := client.NewEventListener("")
 
 	if err != nil {
 		t.Fatalf("Error while creating EventLister: %v", err)
@@ -101,7 +101,7 @@ func TestEventListener_ListenDevice(t *testing.T) {
 		fmt.Fprintf(w, "data: %v\n\n", string(data[:]))
 	})
 
-	eventLister, err := client.NewEventListener(e.Name, d.ID)
+	eventLister, err := d.NewEventListener(e.Name)
 
 	if err != nil {
 		t.Fatalf("Error while creating EventLister: %v", err)
@@ -110,6 +110,7 @@ func TestEventListener_ListenDevice(t *testing.T) {
 	go eventLister.Listen()
 
 	for event := range eventLister.OutputChan {
+		fmt.Println(event)
 		if event.Name != e.Name || event.Data != e.Data {
 			t.Errorf("Got event %v, expected %v", event, e)
 		}

@@ -33,9 +33,27 @@ type EventListener struct {
 	running    bool
 }
 
+// connectEventListener connects the given EventListener to the given endPoint.
+func (c *Client) connectEventListener(endPoint string, e *EventListener) error {
+	resp, err := c.Get(endPoint, nil)
+
+	if err != nil {
+		return err
+	}
+
+	err = CheckResponse(resp)
+
+	if err != nil {
+		return err
+	}
+
+	e.response = resp
+	return nil
+}
+
 // NewEventListener creates a new EventListener for the given event and device id. Both parameters are optional, the
 // event listener will then listen all events. The function will also connect to the server.
-func (c *Client) NewEventListener(name, deviceID string) (*EventListener, error) {
+func (c *Client) NewEventListener(name string) (*EventListener, error) {
 	e := &EventListener{}
 
 	if e.OutputChan == nil {
@@ -43,30 +61,47 @@ func (c *Client) NewEventListener(name, deviceID string) (*EventListener, error)
 	}
 
 	if e.response == nil {
-		var endPoint string
-		if deviceID != "" {
-			endPoint = deviceURL + "/" + deviceID + "/events"
-		} else {
-			endPoint = eventURL
-		}
+		endPoint := eventURL
 
 		if name != "" {
 			endPoint += "/" + name
 		}
 
-		resp, err := c.Get(endPoint, nil)
+		err := c.connectEventListener(endPoint, e)
 
 		if err != nil {
 			return nil, err
 		}
+	}
 
-		err = CheckResponse(resp)
+	return e, nil
+}
+
+// NewEventListener creates a new EventListener for this device for the given event name. If the name is omitted then
+// the function will subscribe to all events of this device.
+func (d *Device) NewEventListener(name string) (*EventListener, error) {
+	e := &EventListener{}
+
+	if d.ID == "" {
+		return nil, fmt.Errorf("Device %v has no id", d)
+	}
+
+	if e.OutputChan == nil {
+		e.OutputChan = make(chan Event)
+	}
+
+	if e.response == nil {
+		endPoint := deviceURL + "/" + d.ID + "/events"
+
+		if name != "" {
+			endPoint += "/" + name
+		}
+
+		err := d.client.connectEventListener(endPoint, e)
 
 		if err != nil {
 			return nil, err
 		}
-
-		e.response = resp
 	}
 
 	return e, nil
@@ -101,6 +136,7 @@ func (e *EventListener) Listen() error {
 			if err == nil {
 				e.OutputChan <- ev
 			}
+
 			buf.Reset()
 			ev = Event{}
 			// todo: Error handling for if json decoding failed.

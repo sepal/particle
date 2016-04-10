@@ -38,7 +38,28 @@ func main() {
 
 	c := particle.NewClient(nil, token)
 
-	e, err := c.NewEventListener(event, deviceID)
+	var e *particle.EventListener
+	var err error
+
+	if deviceID != "" {
+		d, err := c.GetDevice(deviceID)
+
+		if err != nil {
+			common.PrintError(err)
+		}
+
+		e, err = d.NewEventListener(event)
+
+		if err != nil {
+			common.PrintError(err)
+		}
+	} else {
+		e, err = c.NewEventListener(event)
+
+		if err != nil {
+			common.PrintError(err)
+		}
+	}
 
 	if err != nil {
 		common.PrintError(err)

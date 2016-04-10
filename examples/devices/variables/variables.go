@@ -41,30 +41,36 @@ func main() {
 
 	c := particle.NewClient(nil, token)
 
+	d, err := c.GetDevice(deviceID)
+
+	if err != nil {
+		common.PrintError(err)
+	}
+
 	switch varType {
 	case "string":
-		value, err := c.VariableString(deviceID, variable)
+		value, err := d.VariableString(variable)
 		if err != nil {
 			common.PrintError(err)
 		}
 
-		fmt.Printf("Value for '%v' from device '%v' is '%v' with the type '%v'.\n", variable, deviceID, value,
+		fmt.Printf("Value for '%v' from device '%v' is '%v' with the type '%v'.\n", variable, d.Name, value,
 			reflect.TypeOf(value))
 	case "int":
-		value, err := c.VariableInt(deviceID, variable)
+		value, err := d.VariableInt(variable)
 		if err != nil {
 			common.PrintError(err)
 		}
 
-		fmt.Printf("Value for '%v' from device '%v' is '%v with the type '%v'.\n", variable, deviceID, value,
+		fmt.Printf("Value for '%v' from device '%v' is '%v with the type '%v'.\n", variable, d.Name, value,
 			reflect.TypeOf(value))
 	case "float":
-		value, err := c.VariableFloat(deviceID, variable)
+		value, err := d.VariableFloat(variable)
 		if err != nil {
 			common.PrintError(err)
 		}
 
-		fmt.Printf("Value for '%v' from device '%v' is '%v' with the type '%v'.\n", variable, deviceID, value,
+		fmt.Printf("Value for '%v' from device '%v' is '%v' with the type '%v'.\n", variable, d.Name, value,
 			reflect.TypeOf(value))
 	default:
 		msg := fmt.Sprintf("The passed type '%v' is not supported. Please use 'string', 'int' or 'float'",

@@ -24,6 +24,7 @@ type Device struct {
 	IMEI          string
 	Variables     map[string]string
 	Functions     []string
+	client        *Client
 }
 
 // Devices is an array of the Device type.
@@ -43,6 +44,14 @@ func (c *Client) ListDevices() (Devices, error) {
 	var devices Devices
 	_, err := c.Get(deviceURL, &devices)
 
+	if err != nil {
+		return nil, err
+	}
+
+	for idx := range devices {
+		devices[idx].client = c
+	}
+
 	return devices, err
 }
 
@@ -51,12 +60,18 @@ func (c *Client) GetDevice(id string) (Device, error) {
 	var device Device
 	_, err := c.Get(deviceURL+"/"+id, &device)
 
+	if err != nil {
+		return device, err
+	}
+
+	device.client = c
+
 	return device, err
 }
 
 // variableRaw returns the raw value from a variable as byte buffer for the given device ID and the given variable name.
-func (c *Client) variableRaw(deviceID, name string) (*bytes.Buffer, error) {
-	resp, err := c.Get(deviceURL+"/"+deviceID+"/"+name+"?format=raw", nil)
+func (d *Device) variableRaw(name string) (*bytes.Buffer, error) {
+	resp, err := d.client.Get(deviceURL+"/"+d.ID+"/"+name+"?format=raw", nil)
 
 	if err != nil {
 		return nil, err
@@ -74,14 +89,14 @@ func (c *Client) variableRaw(deviceID, name string) (*bytes.Buffer, error) {
 }
 
 // VariableString returns the string value of the passed devices variable.
-func (c *Client) VariableString(deviceID, name string) (string, error) {
-	buffer, err := c.variableRaw(deviceID, name)
+func (d *Device) VariableString(name string) (string, error) {
+	buffer, err := d.variableRaw(name)
 	return buffer.String(), err
 }
 
 // VariableInt returns the int value of the passed devices variable.
-func (c *Client) VariableInt(deviceID, name string) (int, error) {
-	str, err := c.VariableString(deviceID, name)
+func (d *Device) VariableInt(name string) (int, error) {
+	str, err := d.VariableString(name)
 
 	if err != nil {
 		return 0, err
@@ -91,8 +106,8 @@ func (c *Client) VariableInt(deviceID, name string) (int, error) {
 }
 
 // VariableFloat returns the float64 value of the passed devices variable.
-func (c *Client) VariableFloat(deviceID, name string) (float64, error) {
-	str, err := c.VariableString(deviceID, name)
+func (d *Device) VariableFloat(name string) (float64, error) {
+	str, err := d.VariableString(name)
 
 	if err != nil {
 		return 0, err
@@ -102,11 +117,11 @@ func (c *Client) VariableFloat(deviceID, name string) (float64, error) {
 }
 
 // CallFunction calls the passed function name for the given and returns the function value.
-func (c *Client) CallFunction(deviceID, name, argument string) (int, error) {
+func (d *Device) CallFunction(name, argument string) (int, error) {
 	form := url.Values{}
 	form.Add("arg", argument)
 	resp := FunctionResponse{}
-	_, err := c.Post(deviceURL+"/"+deviceID+"/"+name, form, &resp)
+	_, err := d.client.Post(deviceURL+"/"+d.ID+"/"+name, form, &resp)
 
 	return resp.ReturnValue, err
 }
