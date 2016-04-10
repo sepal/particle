@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/sepal/particle/examples/common"
+	"github.com/mitchellh/colorstring"
 	"github.com/sepal/particle"
+	"github.com/sepal/particle/examples/common"
 	"os"
 	"os/signal"
 	"syscall"
-	"github.com/mitchellh/colorstring"
 )
 
 var token, event string
@@ -49,7 +49,7 @@ func main() {
 		<-osChan
 		e.Close()
 		fmt.Println(colorstring.Color("[green]Closing event listener."))
- 	}()
+	}()
 
 	for event := range e.OutputChan {
 		fmt.Printf("New event %v, with data: %v\n", event.Name, event.Data)

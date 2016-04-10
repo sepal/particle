@@ -1,12 +1,12 @@
 package particle
 
 import (
-	"testing"
-	"net/http"
-	"time"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
+	"testing"
+	"time"
 )
 
 func TestClient_NewEventListener(t *testing.T) {
@@ -15,7 +15,7 @@ func TestClient_NewEventListener(t *testing.T) {
 
 	eventName := "some_event"
 
-	mux.HandleFunc(eventURL + "/" + eventName, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(eventURL+"/"+eventName, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; r.Method != m {
 			t.Errorf("Wrong request method %v, expected %v", r.Method, m)
 		}
@@ -46,7 +46,7 @@ func TestEventListener_Listen(t *testing.T) {
 
 	e := Event{"greeting", "Hello, World", "60", time.Now()}
 
-	mux.HandleFunc(eventURL , func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(eventURL, func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; r.Method != m {
 			t.Errorf("Wrong request method %v, expected %v", r.Method, m)
 		}
@@ -62,7 +62,7 @@ func TestEventListener_Listen(t *testing.T) {
 		fmt.Fprintf(w, "data: %v\n\n", string(data[:]))
 	})
 
-	eventLister, err := client.NewEventListener("", "");
+	eventLister, err := client.NewEventListener("", "")
 
 	if err != nil {
 		t.Fatalf("Error while creating EventLister: %v", err)

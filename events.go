@@ -15,8 +15,10 @@ const eventURL = "/v1/events"
 var eventNameLabel = []byte("event:")
 var eventDataLabel = []byte("data:")
 
+// EventChannel are the channels where the Events outputted to.
 type EventChannel chan Event
 
+// Event represents a single event from the particle cloud api.
 type Event struct {
 	Name        string
 	Data        string
@@ -24,12 +26,15 @@ type Event struct {
 	PublishedAt time.Time `json:"published_at"`
 }
 
+// EventListener listens to events from the particle cloud api and outputs them over the OutputChan channel.
 type EventListener struct {
 	OutputChan EventChannel
 	response   *http.Response
 	running    bool
 }
 
+// NewEventListener creates a new EventListener for the given event and device id. Both parameters are optional, the
+// event listener will then listen all events. The function will also connect to the server.
 func (c *Client) NewEventListener(name, deviceID string) (*EventListener, error) {
 	e := &EventListener{}
 
@@ -67,6 +72,7 @@ func (c *Client) NewEventListener(name, deviceID string) (*EventListener, error)
 	return e, nil
 }
 
+// Listen starts reading events from the cloud API.
 func (e *EventListener) Listen() error {
 	ev := Event{}
 	reader := bufio.NewReader(e.response.Body)
@@ -99,12 +105,12 @@ func (e *EventListener) Listen() error {
 			ev = Event{}
 			// todo: Error handling for if json decoding failed.
 		}
-
 	}
 
 	return nil
 }
 
+// Close closes the EventListeners channel and stops the listening loop.
 func (e *EventListener) Close() {
 	close(e.OutputChan)
 	e.running = false
