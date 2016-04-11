@@ -42,7 +42,7 @@ type FunctionResponse struct {
 // ListDevices lists the users claimed devices.
 func (c *Client) ListDevices() (Devices, error) {
 	var devices Devices
-	_, err := c.Get(deviceURL, &devices)
+	_, err := c.get(deviceURL, &devices)
 
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (c *Client) ListDevices() (Devices, error) {
 // GetDevice gets a single device by it's device
 func (c *Client) GetDevice(id string) (Device, error) {
 	var device Device
-	_, err := c.Get(deviceURL+"/"+id, &device)
+	_, err := c.get(deviceURL+"/"+id, &device)
 
 	if err != nil {
 		return device, err
@@ -71,7 +71,7 @@ func (c *Client) GetDevice(id string) (Device, error) {
 
 // variableRaw returns the raw value from a variable as byte buffer for the given device ID and the given variable name.
 func (d *Device) variableRaw(name string) (*bytes.Buffer, error) {
-	resp, err := d.client.Get(deviceURL+"/"+d.ID+"/"+name+"?format=raw", nil)
+	resp, err := d.client.get(deviceURL+"/"+d.ID+"/"+name+"?format=raw", nil)
 
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func (d *Device) CallFunction(name, argument string) (int, error) {
 	form := url.Values{}
 	form.Add("arg", argument)
 	resp := FunctionResponse{}
-	_, err := d.client.Post(deviceURL+"/"+d.ID+"/"+name, form, &resp)
+	_, err := d.client.post(deviceURL+"/"+d.ID+"/"+name, form, &resp)
 
 	return resp.ReturnValue, err
 }

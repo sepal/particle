@@ -35,7 +35,7 @@ type EventListener struct {
 
 // connectEventListener connects the given EventListener to the given endPoint.
 func (c *Client) connectEventListener(endPoint string, e *EventListener) error {
-	resp, err := c.Get(endPoint, nil)
+	resp, err := c.get(endPoint, nil)
 
 	if err != nil {
 		return err

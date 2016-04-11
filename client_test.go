@@ -41,7 +41,7 @@ func TestClient_NewRequest(t *testing.T) {
 	form := url.Values{}
 	form.Add("greeting", "hello")
 
-	req, err := c.NewRequest("POST", inURL, strings.NewReader(form.Encode()))
+	req, err := c.newRequest("POST", inURL, strings.NewReader(form.Encode()))
 	req.Header.Add("Content-Type", mediaTypeForm)
 
 	if err != nil {
@@ -79,10 +79,10 @@ func TestClient_Do(t *testing.T) {
 		fmt.Fprintf(w, `{"A": "a"}`)
 	})
 
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.newRequest("GET", "/", nil)
 
 	body := new(foo)
-	_, err := client.Do(req, &body)
+	_, err := client.do(req, &body)
 
 	if err != nil {
 		t.Fatalf("Error while executing request due to: %v", err)
@@ -110,7 +110,7 @@ func TestClient_Get(t *testing.T) {
 	})
 
 	body := new(foo)
-	_, err := client.Get("/", &body)
+	_, err := client.get("/", &body)
 	if err != nil {
 		t.Fatalf("client.Get(): %v", err)
 	}
@@ -152,7 +152,7 @@ func TestClient_Post(t *testing.T) {
 
 	body := new(foo)
 
-	_, err := client.Post("/", form, &body)
+	_, err := client.post("/", form, &body)
 
 	if err != nil {
 		t.Fatalf("client.Post(): %v", err)

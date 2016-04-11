@@ -110,7 +110,6 @@ func TestEventListener_ListenDevice(t *testing.T) {
 	go eventLister.Listen()
 
 	for event := range eventLister.OutputChan {
-		fmt.Println(event)
 		if event.Name != e.Name || event.Data != e.Data {
 			t.Errorf("Got event %v, expected %v", event, e)
 		}

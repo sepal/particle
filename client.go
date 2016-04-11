@@ -47,9 +47,9 @@ func NewClient(httpClient *http.Client, token string) *Client {
 	return c
 }
 
-// NewRequest creates a new http.Request with the given method to the given endPoint. This function will automatically
+// newRequest creates a new http.Request with the given method to the given endPoint. This function will automatically
 // point the request to the clients baseURL, using the clients user agent and token. If a body is passed, than
-func (c *Client) NewRequest(method, endPoint string, body io.Reader) (*http.Request, error) {
+func (c *Client) newRequest(method, endPoint string, body io.Reader) (*http.Request, error) {
 	// Check that the passed endPoint is valid and concatenate it with the base url.
 	path, err := url.Parse(endPoint)
 
@@ -71,9 +71,9 @@ func (c *Client) NewRequest(method, endPoint string, body io.Reader) (*http.Requ
 	return req, nil
 }
 
-// Do executes the given http.Request. If the interfaces v is passed, then the function tries to encode the JSON
+// do executes the given http.Request. If the interfaces v is passed, then the function tries to encode the JSON
 // response into that interface. The http.Response is passed regardless.
-func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	// Execute the request.
 	resp, err := c.client.Do(req)
 
@@ -102,26 +102,26 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
-// Get executes a GET request using the clients token as well as adding some other headers to it. If the interfaces v is
+// get executes a GET request using the clients token as well as adding some other headers to it. If the interfaces v is
 // passed, then the function tries to encode the JSON response into that interface. The http.Response is passed
 // regardless.
-func (c *Client) Get(endPoint string, v interface{}) (*http.Response, error) {
-	req, err := c.NewRequest("GET", endPoint, nil)
+func (c *Client) get(endPoint string, v interface{}) (*http.Response, error) {
+	req, err := c.newRequest("GET", endPoint, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.Do(req, v)
+	resp, err := c.do(req, v)
 
 	return resp, err
 }
 
-// Post executes a new POST to the given end point with the given form values. If the interfaces v is
+// post executes a new POST to the given end point with the given form values. If the interfaces v is
 // passed, then the function tries to encode the JSON response into that interface. The http.Response is passed
 // regardless.
-func (c *Client) Post(endPoint string, form url.Values, v interface{}) (*http.Response, error) {
-	req, err := c.NewRequest("POST", endPoint, strings.NewReader(form.Encode()))
+func (c *Client) post(endPoint string, form url.Values, v interface{}) (*http.Response, error) {
+	req, err := c.newRequest("POST", endPoint, strings.NewReader(form.Encode()))
 
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (c *Client) Post(endPoint string, form url.Values, v interface{}) (*http.Re
 
 	req.Header.Add("Content-Type", mediaTypeForm)
 
-	resp, err := c.Do(req, v)
+	resp, err := c.do(req, v)
 
 	return resp, err
 }
