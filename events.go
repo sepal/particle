@@ -18,6 +18,9 @@ var eventDataLabel = []byte("data:")
 // EventChannel are the channels where the Events outputted to.
 type EventChannel chan Event
 
+// ErrorChannel receive any errors that occurred while an EventListener is listening.
+type ErrorChannel chan error
+
 // Event represents a single event from the particle cloud api.
 type Event struct {
 	Name        string
@@ -29,8 +32,19 @@ type Event struct {
 // EventListener listens to events from the particle cloud api and outputs them over the OutputChan channel.
 type EventListener struct {
 	OutputChan EventChannel
+	ErrorChan  ErrorChannel
 	response   *http.Response
 	running    bool
+}
+
+// newEventListener creates a new EventListener + its channels but doesn't connects to the server
+func newEventListener() *EventListener {
+	e := &EventListener{}
+
+	e.OutputChan = make(chan Event)
+	e.ErrorChan = make(chan error)
+
+	return e
 }
 
 // connectEventListener connects the given EventListener to the given endPoint.
@@ -54,11 +68,7 @@ func (c *Client) connectEventListener(endPoint string, e *EventListener) error {
 // NewEventListener creates a new EventListener for the given event and device id. Both parameters are optional, the
 // event listener will then listen all events. The function will also connect to the server.
 func (c *Client) NewEventListener(name string) (*EventListener, error) {
-	e := &EventListener{}
-
-	if e.OutputChan == nil {
-		e.OutputChan = make(chan Event)
-	}
+	e := newEventListener()
 
 	if e.response == nil {
 		endPoint := eventURL
@@ -80,28 +90,22 @@ func (c *Client) NewEventListener(name string) (*EventListener, error) {
 // NewEventListener creates a new EventListener for this device for the given event name. If the name is omitted then
 // the function will subscribe to all events of this device.
 func (d *Device) NewEventListener(name string) (*EventListener, error) {
-	e := &EventListener{}
+	e := newEventListener()
 
 	if d.ID == "" {
 		return nil, fmt.Errorf("Device %v has no id", d)
 	}
 
-	if e.OutputChan == nil {
-		e.OutputChan = make(chan Event)
+	endPoint := deviceURL + "/" + d.ID + "/events"
+
+	if name != "" {
+		endPoint += "/" + name
 	}
 
-	if e.response == nil {
-		endPoint := deviceURL + "/" + d.ID + "/events"
+	err := d.client.connectEventListener(endPoint, e)
 
-		if name != "" {
-			endPoint += "/" + name
-		}
-
-		err := d.client.connectEventListener(endPoint, e)
-
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
 	}
 
 	return e, nil
@@ -130,16 +134,19 @@ func (e *EventListener) Listen() error {
 		case bytes.HasPrefix(line, eventDataLabel):
 			buf.Write(line[len(eventDataLabel):])
 		case bytes.Equal(line, []byte("\n")):
-			b := buf.Bytes()
-			err := json.Unmarshal(b, &ev)
+			if buf.Len() > 0 {
+				b := buf.Bytes()
+				err := json.Unmarshal(b, &ev)
 
-			if err == nil {
-				e.OutputChan <- ev
+				if err == nil {
+					e.OutputChan <- ev
+				} else {
+					e.ErrorChan <- err
+				}
+
+				buf.Reset()
+				ev = Event{}
 			}
-
-			buf.Reset()
-			ev = Event{}
-			// todo: Error handling for if json decoding failed.
 		}
 	}
 

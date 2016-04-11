@@ -23,7 +23,7 @@ func (r *ErrorResponse) Error() string {
 
 // CheckResponse checks the API response of an http.Response object.
 func CheckResponse(r *http.Response) error {
-	if c := r.StatusCode; c >= 200 && c <= 299 {
+	if r.StatusCode == 200 {
 		return nil
 	}
 
