@@ -4,8 +4,6 @@
 
 [Go](https://golang.org/) API client for the [Particle Cloud](https://www.particle.io/).
 
-**It is currently WIP.**
-
 ## Todo
 
 - ~~Device Info~~
