@@ -12,8 +12,7 @@
 - ~~Device Variables~~
 - ~~Device Functions~~
 - ~~Events~~
-- Refactor/Improve error handling
-- Special Events
+- ~~Refactor/Improve error handling~~
 
 Further functionality is not planned for now, but might be 
 added later. Pull Requests are of course welcomed :-)
