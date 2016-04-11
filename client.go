@@ -81,7 +81,6 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		return resp, err
 	}
 
-
 	err = CheckResponse(resp)
 
 	// Encode the the JSON response if an interface was passed.

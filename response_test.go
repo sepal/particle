@@ -8,7 +8,6 @@ func TestCheckResponse(t *testing.T) {
 	setup()
 	defer teardown()
 
-
 	// Since we define any route we should get an 404 error message
 	r, err := client.get("/", nil)
 
