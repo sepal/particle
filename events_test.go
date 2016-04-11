@@ -109,6 +109,12 @@ func TestEventListener_ListenDevice(t *testing.T) {
 
 	go eventLister.Listen()
 
+	go func() {
+		for err := range eventLister.ErrorChan {
+			t.Fatalf("Received error from EventListener: %v", err)
+		}
+	}()
+
 	for event := range eventLister.OutputChan {
 		if event.Name != e.Name || event.Data != e.Data {
 			t.Errorf("Got event %v, expected %v", event, e)
