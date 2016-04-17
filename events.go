@@ -70,18 +70,35 @@ func (c *Client) connectEventListener(endPoint string, e *EventListener) error {
 func (c *Client) NewEventListener(name string) (*EventListener, error) {
 	e := newEventListener()
 
-	if e.response == nil {
-		endPoint := eventURL
+	endPoint := eventURL
 
-		if name != "" {
-			endPoint += "/" + name
-		}
+	if name != "" {
+		endPoint += "/" + name
+	}
 
-		err := c.connectEventListener(endPoint, e)
+	err := c.connectEventListener(endPoint, e)
 
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
+	}
+
+	return e, nil
+}
+
+// NewPrivateEventListener creates a new EventListener, which subscribes events for devices of the the tokens account.
+func (c *Client) NewPrivateEventListener(name string) (*EventListener, error) {
+	e := newEventListener()
+
+	endPoint := deviceURL + "/events"
+
+	if name != "" {
+		endPoint += "/" + name
+	}
+
+	err := c.connectEventListener(endPoint, e)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return e, nil
